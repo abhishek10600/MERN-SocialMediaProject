@@ -1,17 +1,24 @@
-import mongoose from "mongoose";
+import mongoose, { Model } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt, { SignOptions, Secret } from "jsonwebtoken";
+import { IUser, IUserDocument, IUserMethods } from "../types";
 
-const userSchema = new mongoose.Schema(
+const userSchema = new mongoose.Schema<
+  IUserDocument,
+  Model<IUserDocument>,
+  IUserMethods
+>(
   {
     username: {
       type: String,
       required: true,
+      unique: true,
       index: true,
     },
     email: {
       type: String,
       required: true,
+      unique: true,
       index: true,
     },
     bio: {
@@ -30,13 +37,16 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    refreshToken: {
+      type: String,
+    },
   },
   {
     timestamps: true,
   }
 );
 
-userSchema.pre("save", async function () {
+userSchema.pre<IUserDocument>("save", async function () {
   if (!this.isModified("password")) {
     return;
   }
@@ -80,4 +90,4 @@ userSchema.methods.generateRefreshToken = function () {
   );
 };
 
-export const User = mongoose.model("User", userSchema);
+export const User = mongoose.model<IUserDocument>("User", userSchema);
