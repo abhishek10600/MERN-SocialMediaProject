@@ -8,7 +8,6 @@ export const registerUser = async (req: Request, res: Response) => {
   try {
     let profileImageLocalPath;
     let profileImageUrl;
-    console.log(profileImageUrl);
     if (req.file?.path) {
       profileImageLocalPath = req.file.path;
       const cloudinaryResult = await uploadToCloudinary(profileImageLocalPath);

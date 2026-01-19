@@ -1,6 +1,4 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
-import bcrypt from "bcrypt";
-import jwt, { SignOptions, Secret } from "jsonwebtoken";
 
 export interface IUser {
   username: string;
