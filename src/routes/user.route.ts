@@ -4,6 +4,11 @@ import {
   registerUser,
   loginUser,
   logoutUser,
+  refreshAccessToken,
+  getCurrentUser,
+  changeCurrentPassword,
+  addBio,
+  updateBio,
 } from "../controllers/user.controller";
 import { verifyJWT } from "../middlewares/auth.middleware";
 
@@ -11,8 +16,13 @@ const router = express.Router();
 
 router.route("/register").post(upload.single("profileImage"), registerUser);
 router.route("/login").post(loginUser);
+router.route("/refresh-token").post(refreshAccessToken);
 
 // secured routes
 router.route("/logout").get(verifyJWT, logoutUser);
+router.route("/current-user").get(verifyJWT, getCurrentUser);
+router.route("/change-password").post(verifyJWT, changeCurrentPassword);
+router.route("/add-bio").post(verifyJWT, addBio);
+router.route("/update-bio").patch(verifyJWT, updateBio);
 
 export default router;
