@@ -9,6 +9,7 @@ import {
   changeCurrentPassword,
   addBio,
   updateBio,
+  updateProfileImage,
 } from "../controllers/user.controller";
 import { verifyJWT } from "../middlewares/auth.middleware";
 
@@ -24,5 +25,8 @@ router.route("/current-user").get(verifyJWT, getCurrentUser);
 router.route("/change-password").post(verifyJWT, changeCurrentPassword);
 router.route("/add-bio").post(verifyJWT, addBio);
 router.route("/update-bio").patch(verifyJWT, updateBio);
+router
+  .route("/update-profile-image")
+  .patch(verifyJWT, upload.single("profileImage"), updateProfileImage);
 
 export default router;

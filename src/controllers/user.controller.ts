@@ -1,10 +1,12 @@
 import { Request, Response } from "express";
 import { ApiError } from "../utils/ApiError";
-import { uploadToCloudinary } from "../utils/cloudinary";
+import { uploadToCloudinary, removeFromCloudinary } from "../utils/cloudinary";
 import { ApiResponse } from "../utils/ApiResponse";
 import { User } from "../models/user.model";
 import jwt from "jsonwebtoken";
 import { AccessTokenPayload } from "../types";
+import fs from "fs";
+import { upload } from "../middlewares/multer.middleware";
 
 export const registerUser = async (req: Request, res: Response) => {
   try {
@@ -462,4 +464,60 @@ export const updateBio = async (req: Request, res: Response) => {
   }
 };
 
+export const updateProfileImage = async (req: Request, res: Response) => {
+  try {
+    let profileImagePath = req.file?.path;
+    if (!profileImagePath) {
+      throw new ApiError(400, "profile image is required");
+    }
 
+    const userId = req.user?._id;
+    if (!userId) {
+      fs.unlinkSync(profileImagePath);
+      throw new ApiError(500, "no user id found");
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      fs.unlinkSync(profileImagePath);
+      throw new ApiError(404, "user not found");
+    }
+
+    if (!user.profileImage) {
+      const profileImage = await uploadToCloudinary(profileImagePath);
+      user.profileImage = profileImage?.url;
+      user.save({ validateBeforeSave: false });
+      return res
+        .status(200)
+        .json(new ApiResponse(200, null, "profile image added successfully"));
+    } else {
+      const oldProfileImageUrl = user.profileImage;
+      await removeFromCloudinary(oldProfileImageUrl);
+      const newProfileImage = await uploadToCloudinary(profileImagePath);
+      user.profileImage = newProfileImage?.url;
+      user.save({ validateBeforeSave: false });
+      return res
+        .status(201)
+        .json(new ApiResponse(200, null, "profile image updated successfully"));
+    }
+  } catch (error: unknown) {
+    console.error("Error: ", error);
+
+    if (error instanceof ApiError) {
+      return res.status(error.statusCode).json({
+        success: false,
+        message: error.message,
+        errors: error.errors,
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      errors: [],
+    });
+  }
+};
+
+// create controller to get user profile details. It should contain posts, followers and followings
+// Here I need to use mongodb aggregation pipelines
