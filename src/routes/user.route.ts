@@ -10,6 +10,7 @@ import {
   addBio,
   updateBio,
   updateProfileImage,
+  getUserProfileData,
 } from "../controllers/user.controller";
 import { verifyJWT } from "../middlewares/auth.middleware";
 
@@ -28,5 +29,8 @@ router.route("/update-bio").patch(verifyJWT, updateBio);
 router
   .route("/update-profile-image")
   .patch(verifyJWT, upload.single("profileImage"), updateProfileImage);
+router
+  .route("/get-user-profile-data/:username")
+  .get(verifyJWT, getUserProfileData);
 
 export default router;

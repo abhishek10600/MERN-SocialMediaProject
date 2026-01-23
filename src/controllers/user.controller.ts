@@ -7,6 +7,7 @@ import jwt from "jsonwebtoken";
 import { AccessTokenPayload } from "../types";
 import fs from "fs";
 import { upload } from "../middlewares/multer.middleware";
+import mongoose from "mongoose";
 
 export const registerUser = async (req: Request, res: Response) => {
   try {
@@ -520,4 +521,94 @@ export const updateProfileImage = async (req: Request, res: Response) => {
 };
 
 // create controller to get user profile details. It should contain posts, followers and followings
-// Here I need to use mongodb aggregation pipelines
+// Here I need to use mongodb populate
+export const getUserProfileData = async (req: Request, res: Response) => {
+  try {
+    const { username } = req.params;
+
+    if (!username) {
+      throw new ApiError(404, "usernamenot found");
+    }
+
+    const profileData = await User.aggregate([
+      {
+        $match: {
+          username: username,
+        },
+      },
+      {
+        $lookup: {
+          from: "posts",
+          localField: "_id",
+          foreignField: "owner",
+          as: "posts",
+        },
+      },
+      {
+        $project: {
+          username: 1,
+          email: 1,
+          bio: 1,
+          profileImage: 1,
+          postCount: {
+            $size: "$posts",
+          },
+          followersCount: {
+            $size: "$followers",
+          },
+          followingCount: {
+            $size: "$following",
+          },
+        },
+      },
+    ]);
+
+    if (!profileData.length) {
+      throw new ApiError(404, "user not found");
+    }
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, profileData[0], "user data fetched successfully")
+      );
+  } catch (error: unknown) {
+    console.error("Error: ", error);
+
+    if (error instanceof ApiError) {
+      return res.status(error.statusCode).json({
+        success: false,
+        message: error.message,
+        errors: error.errors,
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      errors: [],
+    });
+  }
+};
+
+// create controller to follow and unfollow
+export const followUnfollowUser = async (req: Request, res: Response) => {
+  try {
+  } catch (error: unknown) {
+    console.error("Error: ", error);
+
+    if (error instanceof ApiError) {
+      return res.status(error.statusCode).json({
+        success: false,
+        message: error.message,
+        errors: error.errors,
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      errors: [],
+    });
+  }
+};

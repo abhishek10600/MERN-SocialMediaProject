@@ -159,7 +159,119 @@ export const getAllPostsForHome = async (req: Request, res: Response) => {
     return res
       .status(200)
       .json(new ApiResponse(200, posts, "posts fetched successfully"));
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error("Error: ", error);
+
+    if (error instanceof ApiError) {
+      return res.status(error.statusCode).json({
+        success: false,
+        message: error.message,
+        errors: error.errors,
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      errors: [],
+    });
+  }
+};
+
+export const getUserPosts = async (req: Request, res: Response) => {
+  try {
+    const { username } = req.params;
+
+    if (!username) {
+      throw new ApiError(404, "username not found");
+    }
+
+    const posts = await Post.aggregate([
+      {
+        $lookup: {
+          from: "users",
+          localField: "owner",
+          foreignField: "_id",
+          as: "owner",
+        },
+      },
+      {
+        $unwind: "$owner",
+      },
+      {
+        $match: {
+          "owner.username": username,
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "comments.commentedBy",
+          foreignField: "_id",
+          as: "commentUsers",
+        },
+      },
+      {
+        $addFields: {
+          comments: {
+            $map: {
+              input: "$comments",
+              as: "comment",
+              in: {
+                _id: "$$comment._id",
+                comment: "$$comment.comment",
+                createdAt: "$$comment.createdAt",
+                commentedBy: {
+                  $arrayElemAt: [
+                    {
+                      $filter: {
+                        input: "$commentUsers",
+                        as: "user",
+                        cond: {
+                          $eq: ["$$user._id", "$$comment.commentedBy"],
+                        },
+                      },
+                    },
+                    0,
+                  ],
+                },
+              },
+            },
+          },
+          commentCount: { $size: "$comments" },
+        },
+      },
+      {
+        $project: {
+          content: 1,
+          image: 1,
+          createdAt: 1,
+          commentCount: 1,
+          owner: {
+            _id: "$owner._id",
+            username: "$owner.username",
+            profileImage: "$owner.profileImage",
+          },
+          comments: {
+            _id: 1,
+            comment: 1,
+            commentedBy: {
+              _id: 1,
+              username: 1,
+              profileImage: 1,
+            },
+          },
+        },
+      },
+      {
+        $sort: { createdAt: -1 },
+      },
+    ]);
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, posts, "user posts fetched successfully"));
+  } catch (error: unknown) {
     console.error("Error: ", error);
 
     if (error instanceof ApiError) {
