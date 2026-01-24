@@ -11,6 +11,8 @@ import {
   updateBio,
   updateProfileImage,
   getUserProfileData,
+  followUser,
+  unfollowUser,
 } from "../controllers/user.controller";
 import { verifyJWT } from "../middlewares/auth.middleware";
 
@@ -32,5 +34,7 @@ router
 router
   .route("/get-user-profile-data/:username")
   .get(verifyJWT, getUserProfileData);
+router.route("/follow/:username").post(verifyJWT, followUser);
+router.route("/unfollow/:username").post(verifyJWT, unfollowUser);
 
 export default router;
