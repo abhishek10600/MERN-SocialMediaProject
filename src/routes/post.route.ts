@@ -5,6 +5,8 @@ import {
   createPost,
   getAllPostsForHome,
   getUserPosts,
+  updatePostContent,
+  deletePost,
 } from "../controllers/post.controller";
 
 const router = express.Router();
@@ -15,5 +17,9 @@ router
 
 router.route("/all-posts").get(verifyJWT, getAllPostsForHome);
 router.route("/user-posts/:username").get(verifyJWT, getUserPosts);
+router
+  .route("/update-post-content/:postId")
+  .patch(verifyJWT, updatePostContent);
+router.route("/delete-post/:postId").delete(verifyJWT, deletePost);
 
 export default router;
