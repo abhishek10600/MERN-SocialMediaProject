@@ -188,6 +188,7 @@ export const getUserPosts = async (req: Request, res: Response) => {
     }
 
     const posts = await Post.aggregate([
+      // 1️⃣ Join owner
       {
         $lookup: {
           from: "users",
@@ -196,14 +197,26 @@ export const getUserPosts = async (req: Request, res: Response) => {
           as: "owner",
         },
       },
-      {
-        $unwind: "$owner",
-      },
+      { $unwind: "$owner" },
+
+      // 2️⃣ Match by username
       {
         $match: {
           "owner.username": username,
         },
       },
+
+      // 3️⃣ 🔥 JOIN COMMENTS (THIS WAS MISSING)
+      {
+        $lookup: {
+          from: "comments",
+          localField: "comments",
+          foreignField: "_id",
+          as: "comments",
+        },
+      },
+
+      // 4️⃣ Join comment users
       {
         $lookup: {
           from: "users",
@@ -212,6 +225,8 @@ export const getUserPosts = async (req: Request, res: Response) => {
           as: "commentUsers",
         },
       },
+
+      // 5️⃣ Shape comments
       {
         $addFields: {
           comments: {
@@ -223,18 +238,29 @@ export const getUserPosts = async (req: Request, res: Response) => {
                 comment: "$$comment.comment",
                 createdAt: "$$comment.createdAt",
                 commentedBy: {
-                  $arrayElemAt: [
-                    {
-                      $filter: {
-                        input: "$commentUsers",
-                        as: "user",
-                        cond: {
-                          $eq: ["$$user._id", "$$comment.commentedBy"],
-                        },
+                  $let: {
+                    vars: {
+                      user: {
+                        $arrayElemAt: [
+                          {
+                            $filter: {
+                              input: "$commentUsers",
+                              as: "user",
+                              cond: {
+                                $eq: ["$$user._id", "$$comment.commentedBy"],
+                              },
+                            },
+                          },
+                          0,
+                        ],
                       },
                     },
-                    0,
-                  ],
+                    in: {
+                      _id: "$$user._id",
+                      username: "$$user.username",
+                      profileImage: "$$user.profileImage",
+                    },
+                  },
                 },
               },
             },
@@ -242,6 +268,8 @@ export const getUserPosts = async (req: Request, res: Response) => {
           commentCount: { $size: "$comments" },
         },
       },
+
+      // 6️⃣ Final projection
       {
         $project: {
           content: 1,
@@ -253,20 +281,11 @@ export const getUserPosts = async (req: Request, res: Response) => {
             username: "$owner.username",
             profileImage: "$owner.profileImage",
           },
-          comments: {
-            _id: 1,
-            comment: 1,
-            commentedBy: {
-              _id: 1,
-              username: 1,
-              profileImage: 1,
-            },
-          },
+          comments: 1,
         },
       },
-      {
-        $sort: { createdAt: -1 },
-      },
+
+      { $sort: { createdAt: -1 } },
     ]);
 
     return res

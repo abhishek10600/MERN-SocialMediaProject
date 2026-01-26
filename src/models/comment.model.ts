@@ -1,6 +1,10 @@
-import mongoose from "mongoose";
+import mongoose, { Model } from "mongoose";
+import { ICommentDocument } from "../types";
 
-const commentSchema = new mongoose.Schema(
+const commentSchema = new mongoose.Schema<
+  ICommentDocument,
+  Model<ICommentDocument>
+>(
   {
     post: {
       type: mongoose.Schema.Types.ObjectId,
@@ -20,4 +24,7 @@ const commentSchema = new mongoose.Schema(
   }
 );
 
-export const Comment = mongoose.model("Comment", commentSchema);
+export const Comment = mongoose.model<ICommentDocument>(
+  "Comment",
+  commentSchema
+);

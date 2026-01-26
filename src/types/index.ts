@@ -8,8 +8,8 @@ export interface IUser {
   bio?: string;
   profileImage?: string;
   posts: mongoose.Types.ObjectId;
-  followers: mongoose.Types.ObjectId;
-  following: mongoose.Types.ObjectId;
+  followers: mongoose.Types.ObjectId[];
+  following: mongoose.Types.ObjectId[];
   refreshToken?: String | undefined;
 }
 
@@ -31,7 +31,15 @@ export interface IPost {
   content: string;
   image?: string;
   owner: mongoose.Types.ObjectId;
-  comments: mongoose.Types.ObjectId;
+  comments: mongoose.Types.ObjectId[];
 }
 
 export interface IPostDocument extends IPost, Document {}
+
+export interface IComment {
+  post: mongoose.Types.ObjectId;
+  comment: String;
+  commentedBy: mongoose.Types.ObjectId;
+}
+
+export interface ICommentDocument extends IComment, Document {}
