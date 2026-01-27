@@ -61,6 +61,9 @@ export const createPost = async (req: Request, res: Response) => {
 // here I need to implement the mongodb aggregation pipeline to get the comments
 export const getAllPostsForHome = async (req: Request, res: Response) => {
   try {
+    const userId = req.user?._id;
+    if (!userId) {
+    }
     const posts = await Post.aggregate([
       {
         $lookup: {
@@ -139,15 +142,22 @@ export const getAllPostsForHome = async (req: Request, res: Response) => {
           },
         },
       },
+
+      // 🔥 ONLY NEW PART (LIKES)
       {
         $addFields: {
           commentsCount: { $size: "$comments" },
+          likeCount: { $size: "$likes" },
         },
       },
+
       {
         $project: {
           commentUsers: 0,
           __v: 0,
+          // keep likes if frontend needs it
+          // remove this line if you want full likes array
+          // likes: 1
         },
       },
       {
@@ -206,7 +216,7 @@ export const getUserPosts = async (req: Request, res: Response) => {
         },
       },
 
-      // 3️⃣ 🔥 JOIN COMMENTS (THIS WAS MISSING)
+      // 3️⃣ Join comments
       {
         $lookup: {
           from: "comments",
@@ -265,7 +275,19 @@ export const getUserPosts = async (req: Request, res: Response) => {
               },
             },
           },
+        },
+      },
+
+      // 🔥 FIX: ensure likes always exists + counts
+      {
+        $addFields: {
+          likes: { $ifNull: ["$likes", []] },
+        },
+      },
+      {
+        $addFields: {
           commentCount: { $size: "$comments" },
+          likeCount: { $size: "$likes" },
         },
       },
 
@@ -276,12 +298,16 @@ export const getUserPosts = async (req: Request, res: Response) => {
           image: 1,
           createdAt: 1,
           commentCount: 1,
+          likeCount: 1,
+          likes: 1,
+          comments: 1,
           owner: {
             _id: "$owner._id",
             username: "$owner.username",
             profileImage: "$owner.profileImage",
           },
-          comments: 1,
+          // ❌ hide raw likes array (optional)
+          // likes: 0,
         },
       },
 
