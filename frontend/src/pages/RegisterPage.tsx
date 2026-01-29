@@ -2,7 +2,7 @@ import RegisterUserForm from "../components/AuthPageComponent/RegisterUserForm";
 
 const RegisterPage = () => {
   return (
-    <div className="bg-[#000000] h-screen flex flex-col md:gap-10 items-center overflow-hidden">
+    <div className="bg-[#000000] min-h-screen flex flex-col md:gap-10 items-center overflow-y-auto md:pb-8">
       <div className="flex flex-col items-center md:gap-5 md:pt-12">
         <h1 className="md:text-5xl text-[#9929EA] font-bold">
           Welcome To ConnectHub
