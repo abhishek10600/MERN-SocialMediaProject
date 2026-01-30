@@ -1,20 +1,46 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginUserSchema } from "../../schemas/auth.schema";
 import type { LoginUserFormData } from "../../schemas/auth.schema";
+import { useState } from "react";
+import { toast } from "react-toastify";
+import { loginUser } from "../../api/auth.api";
+import Spinner from "../General/Spinner";
+import { useDispatch } from "react-redux";
+import { setUser } from "../../store/slices/authSlice";
 
 const LoginUserForm = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [serverError, setServerError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<LoginUserFormData>({
     resolver: zodResolver(loginUserSchema),
   });
 
-  const onSubmit = (data: LoginUserFormData) => {
-    console.log(data);
+  const onSubmit = async (data: LoginUserFormData) => {
+    // console.log(data);
+    try {
+      setLoading(true);
+      setServerError(null);
+
+      const response = await loginUser(data);
+      dispatch(setUser(response.data.user));
+      toast.success("Account Created Successfully");
+      reset();
+      navigate("/");
+    } catch (error: any) {
+      setServerError(error.message);
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -54,9 +80,10 @@ const LoginUserForm = () => {
       </Link>
       <button
         type="submit"
+        disabled={loading}
         className="bg-[#9929EA] md:py-2 rounded-xl font-bold hover:bg-[#7b14c4] cursor-pointer ease-in-out duration-200"
       >
-        Login
+        {loading ? <Spinner /> : "Login"}
       </button>
     </form>
   );

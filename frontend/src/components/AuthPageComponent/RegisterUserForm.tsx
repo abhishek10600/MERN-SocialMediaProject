@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerUserSchema } from "../../schemas/auth.schema";
@@ -7,8 +7,12 @@ import { useState } from "react";
 import { registerUser } from "../../api/auth.api";
 import Spinner from "../General/Spinner";
 import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { setUser } from "../../store/slices/authSlice";
 
 const RegisterUserForm = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [serverError, setServerError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -28,9 +32,11 @@ const RegisterUserForm = () => {
       setServerError(null);
 
       const response = await registerUser(data);
-      console.log("Registered: ", response);
+      // console.log("Registered: ", response);
+      dispatch(setUser(response.data.user));
       toast.success("Account Created Successfully");
       reset();
+      navigate("/");
     } catch (error: any) {
       setServerError(error.message);
       toast.error(error.message);
