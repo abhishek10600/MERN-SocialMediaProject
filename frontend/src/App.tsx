@@ -2,12 +2,14 @@ import { Routes, Route } from "react-router-dom";
 import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
 import { ToastContainer } from "react-toastify";
-import HomePage from "./pages/HomePage";
+import FeedPage from "./pages/FeedPage";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { getCurrentUser } from "./api/auth.api";
 import { setAuthLoad, setUser } from "./store/slices/authSlice";
 import type { RootState } from "./store/store";
+import ProtectedRoute from "./routes/ProtectedRoute";
+import PublicRoute from "./routes/PublicRoute";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -27,11 +29,32 @@ const App = () => {
   }, [dispatch]);
 
   return (
-    <div className="h-screen">
+    <div className="h-screen bg-[#000000]">
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <FeedPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <PublicRoute>
+              <RegisterPage />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <LoginPage />
+            </PublicRoute>
+          }
+        />
       </Routes>
       <ToastContainer />
     </div>

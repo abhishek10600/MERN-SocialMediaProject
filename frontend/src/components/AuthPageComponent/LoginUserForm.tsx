@@ -32,7 +32,7 @@ const LoginUserForm = () => {
 
       const response = await loginUser(data);
       dispatch(setUser(response.data.user));
-      toast.success("Account Created Successfully");
+      toast.success(`Welcome Back ${response.data.user.username}`);
       reset();
       navigate("/");
     } catch (error: any) {
@@ -46,15 +46,15 @@ const LoginUserForm = () => {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="border flex flex-col md:gap-3 md:text-sm"
+      className="border flex flex-col gap-3 text-sm"
     >
-      <div className="flex flex-col md:gap-2">
+      <div className="flex flex-col gap-2">
         <label className="text-[#9929EA]">Username or Email</label>
         <input
           type="text"
           {...register("identifier")}
           placeholder="enter your username or email"
-          className="text-white md:p-2 border rounded-xl"
+          className="text-white p-2 border rounded-xl"
         />
         {errors.identifier && (
           <p className="text-red-400 text-xs h-4">
@@ -63,13 +63,13 @@ const LoginUserForm = () => {
         )}
       </div>
 
-      <div className="flex flex-col md:gap-2">
+      <div className="flex flex-col gap-2">
         <label className="text-[#9929EA]">Password</label>
         <input
           type="password"
           {...register("password")}
           placeholder="enter your password"
-          className="text-white md:p-2 border rounded-xl"
+          className="text-white p-2 border rounded-xl"
         />
         {errors.password && (
           <p className="text-red-400 text-xs h-4">{errors.password.message}</p>
@@ -81,7 +81,7 @@ const LoginUserForm = () => {
       <button
         type="submit"
         disabled={loading}
-        className="bg-[#9929EA] md:py-2 rounded-xl font-bold hover:bg-[#7b14c4] cursor-pointer ease-in-out duration-200"
+        className="bg-[#9929EA] py-2 rounded-xl font-bold hover:bg-[#7b14c4] cursor-pointer ease-in-out duration-200"
       >
         {loading ? <Spinner /> : "Login"}
       </button>

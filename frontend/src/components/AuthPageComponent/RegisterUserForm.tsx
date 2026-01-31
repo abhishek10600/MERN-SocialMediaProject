@@ -47,54 +47,54 @@ const RegisterUserForm = () => {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="border flex flex-col md:gap-3 md:text-sm pb-4"
+      className="border flex flex-col gap-3 text-sm md:pb-4"
     >
       {/* username */}
-      <div className="flex flex-col md:gap-2">
+      <div className="flex flex-col gap-2">
         <label className="text-[#9929EA]">Username</label>
         <input
           type="text"
           {...register("username")}
           placeholder="create your username"
-          className="text-white md:p-2 border rounded-xl bg-transparent"
+          className="text-white p-2 border rounded-xl bg-transparent"
         />
         {errors.username && (
           <p className="text-red-400 text-xs h-4">{errors.username.message}</p>
         )}
       </div>
-      <div className="flex flex-col md:gap-2">
+      <div className="flex flex-col gap-2">
         <label className="text-[#9929EA]">Email</label>
         <input
           type="email"
           {...register("email")}
           placeholder="enter your email"
-          className="text-white md:p-2 border rounded-xl bg-transparent"
+          className="text-white p-2 border rounded-xl bg-transparent"
         />
         {errors.email && (
           <p className="text-red-400 text-xs h-4">{errors.email.message}</p>
         )}
       </div>
 
-      <div className="flex flex-col md:gap-2">
+      <div className="flex flex-col gap-2">
         <label className="text-[#9929EA]">Password</label>
         <input
           type="password"
           {...register("password")}
           placeholder="create your password"
-          className="text-white md:p-2 border rounded-xl bg-transparent"
+          className="text-white p-2 border rounded-xl bg-transparent"
         />
         {errors.password && (
           <p className="text-red-400 text-xs h-4">{errors.password.message}</p>
         )}
       </div>
 
-      <div className="flex flex-col md:gap-2">
+      <div className="flex flex-col gap-2">
         <label className="text-[#9929EA]">Profile Picture</label>
         <input
           type="file"
           {...register("profileImage")}
           accept="image/*"
-          className="text-white md:p-2 border rounded-xl hover:bg-[#131313] cursor-pointer"
+          className="text-white p-2 border rounded-xl hover:bg-[#131313] cursor-pointer"
         />
         {errors.profileImage && (
           <p className="text-red-400 text-xs h-4">
