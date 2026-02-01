@@ -29,7 +29,7 @@ const App = () => {
   }, [dispatch]);
 
   return (
-    <div className="h-screen bg-[#000000]">
+    <div className="min-h-screen bg-[#000000]">
       <Routes>
         <Route
           path="/"
