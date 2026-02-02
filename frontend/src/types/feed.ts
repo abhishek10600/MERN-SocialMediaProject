@@ -17,7 +17,7 @@ export interface FeedComment {
   commentedBy: CommentedBy;
 }
 
-export interface FeedPost {
+export interface FeedPostType {
   _id: string;
   content: string;
   image?: string;

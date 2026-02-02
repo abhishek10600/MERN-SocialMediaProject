@@ -6,15 +6,15 @@ import { toast } from "react-toastify";
 import Navbar from "../components/General/Navbar";
 import Sidebar from "../components/General/Sidebar";
 import ChatBar from "../components/General/ChatBar";
-import FeedSection from "../components/FeedPageComponents/FeedSection";
 import { getFeedPosts } from "../api/feed.api";
-import type { FeedPost } from "../types/feed";
+import type { FeedPostType } from "../types/feed";
+import FeedPost from "../components/FeedPageComponents/FeedPost";
 
 const FeedPage = () => {
   const { loading } = useSelector((state: RootState) => state.auth);
   const [serverError, setServerError] = useState<string | null>(null);
   const [loadingPosts, setLoadingPosts] = useState(true);
-  const [feedPosts, setFeedPosts] = useState<FeedPost[]>([]);
+  const [feedPosts, setFeedPosts] = useState<FeedPostType[]>([]);
 
   useEffect(() => {
     const getPosts = async () => {
@@ -38,19 +38,22 @@ const FeedPage = () => {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="h-screen overflow-hidden flex flex-col">
       <Navbar />
-      <div className="container flex">
-        <Sidebar />
-        {loadingPosts ? (
-          <Spinner />
-        ) : feedPosts.length === 0 ? (
-          <p className="text-white">No posts found</p>
-        ) : (
-          feedPosts.map((feedPost) => (
-            <FeedSection key={feedPost._id} post={feedPost} />
-          ))
-        )}
+
+      <div className="flex flex-1 overflow-hidden">
+        <Sidebar /> 
+        <div className="flex-1 overflow-y-auto px-4">
+          {loadingPosts ? (
+            <Spinner />
+          ) : feedPosts.length === 0 ? (
+            <p className="text-white">No posts found</p>
+          ) : (
+            feedPosts.map((feedPost) => (
+              <FeedPost key={feedPost._id} post={feedPost} />
+            ))
+          )}
+        </div>
         <ChatBar />
       </div>
     </div>

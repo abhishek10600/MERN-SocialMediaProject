@@ -32,7 +32,7 @@ const Navbar = () => {
       <div className="flex justify-center items-center gap-2">
         {user?.profileImage ? (
           <img
-            className="w-7.5 rounded-2xl bg-cover aspect-square border-2 border-[#9929EA]"
+            className="w-7.5 rounded-2xl bg-cover aspect-square border-2 border-[#9929EA] object-cover"
             src={user?.profileImage}
           />
         ) : (
