@@ -5,7 +5,7 @@ import { User, User2 } from "lucide-react";
 import { logoutUser } from "../../api/auth.api";
 import { toast } from "react-toastify";
 import { logout } from "../../store/slices/authSlice";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const dispatch = useDispatch();
@@ -26,9 +26,9 @@ const Navbar = () => {
   };
   return (
     <nav className="min-h-[10vh] flex justify-between items-center px-4 py-4 md:px-20 md:py-4 border-b border-[#230737] shadow-[#230737] sticky">
-      <h1 className="text-[#9929EA] font-bold text-xl md:text-3xl">
+      <Link to="/" className="text-[#9929EA] font-bold text-xl md:text-3xl">
         ConnectHub
-      </h1>
+      </Link>
       <div className="flex justify-center items-center gap-2">
         {user?.profileImage ? (
           <img

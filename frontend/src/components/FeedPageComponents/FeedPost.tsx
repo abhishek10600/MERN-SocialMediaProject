@@ -5,6 +5,7 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { toggleLikePost } from "../../api/like.api";
 import { Heart, MessageCircle, User2 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface FeedPostProps {
   post: FeedPostType;
@@ -53,16 +54,22 @@ const FeedPost = ({ post }: FeedPostProps) => {
   return (
     <section className="min-w-[60vw] md:px-32 md:py-8">
       <div className="post-container flex flex-col gap-2">
-        <div className="flex md:gap-2 items-center">
+        <div className="flex items-center gap-2">
           {post.owner?.profileImage ? (
-            <img
-              className="aspect-square w-8 rounded-full object-cover"
-              src={post.owner.profileImage}
-            />
+            <Link to={`profile/${user?.username}`}>
+              <img
+                className="aspect-square w-8 rounded-full object-cover"
+                src={post.owner.profileImage}
+              />
+            </Link>
           ) : (
-            <User2 className="text-white" />
+            <Link to={`profile/${user?.username}`}>
+              <User2 className="text-white" />
+            </Link>
           )}
-          <span className="text-white">{post.owner.username}</span>
+          <Link to={`profile/${user?.username}`}>
+            <span className="text-white">{post.owner.username}</span>
+          </Link>
         </div>
         <span className="text-xs text-white/60">
           {new Date(post.createdAt).toLocaleString()}

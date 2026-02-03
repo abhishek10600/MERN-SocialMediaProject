@@ -10,6 +10,7 @@ import { setAuthLoad, setUser } from "./store/slices/authSlice";
 import type { RootState } from "./store/store";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import PublicRoute from "./routes/PublicRoute";
+import ProfilePage from "./pages/ProfilePage";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -36,6 +37,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <FeedPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile/:username"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
             </ProtectedRoute>
           }
         />
