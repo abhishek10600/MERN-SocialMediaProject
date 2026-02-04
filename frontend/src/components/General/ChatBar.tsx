@@ -1,8 +1,6 @@
-import React from "react";
-
 const ChatBar = () => {
   return (
-    <div className="text-white h-full w-75 shadow-xl shadow-[#9929EA] flex flex-col items-center">
+    <div className="w-[300px] shrink-0 h-full border-l border-white/10 text-white flex flex-col items-center py-6">
       ChatBar
     </div>
   );

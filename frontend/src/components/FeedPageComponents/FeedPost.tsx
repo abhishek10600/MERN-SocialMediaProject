@@ -56,18 +56,18 @@ const FeedPost = ({ post }: FeedPostProps) => {
       <div className="post-container flex flex-col gap-2">
         <div className="flex items-center gap-2">
           {post.owner?.profileImage ? (
-            <Link to={`profile/${user?.username}`}>
+            <Link to={`profile/${post.owner?.username}`}>
               <img
                 className="aspect-square w-8 rounded-full object-cover"
                 src={post.owner.profileImage}
               />
             </Link>
           ) : (
-            <Link to={`profile/${user?.username}`}>
+            <Link to={`profile/${post.owner.username}`}>
               <User2 className="text-white" />
             </Link>
           )}
-          <Link to={`profile/${user?.username}`}>
+          <Link to={`profile/${post.owner.username}`}>
             <span className="text-white">{post.owner.username}</span>
           </Link>
         </div>

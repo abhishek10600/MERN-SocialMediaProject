@@ -1,8 +1,6 @@
-import React from "react";
-
 const Sidebar = () => {
   return (
-    <div className="text-white h-full w-65 shadow-xl shadow-[#9929EA] flex flex-col items-center">
+    <div className="w-[260px] shrink-0 h-full border-r border-white/10 text-white flex flex-col items-center py-6">
       Sidebar
     </div>
   );
