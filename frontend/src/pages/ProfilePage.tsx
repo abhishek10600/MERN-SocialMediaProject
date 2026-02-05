@@ -10,7 +10,7 @@ const ProfilePage = () => {
       <Navbar />
 
       {/* Main Layout */}
-      <div className="flex h-[calc(100vh-10vh)] pt-[10vh] overflow-hidden">
+      <div className="flex h-[calc(100vh-10vh)] overflow-hidden">
         <Sidebar />
 
         {/* Scrollable Center */}

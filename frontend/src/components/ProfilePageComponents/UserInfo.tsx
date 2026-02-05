@@ -1,19 +1,58 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import type { userProfileInfoType } from "../../types/userprofile";
-import { User2 } from "lucide-react";
+import { toast } from "react-toastify";
+import { followUser, unfollowUser } from "../../api/userProfile.api";
 
 interface UserInfoProps {
   user: userProfileInfoType;
 }
 
 const UserInfo = ({ user }: UserInfoProps) => {
+  const [isFollowing, setIsFollowing] = useState(user.isFollowing);
+  const [followersCount, setFollowersCount] = useState<number>(
+    user.followersCount,
+  );
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setIsFollowing(user.isFollowing);
+    setFollowersCount(user.followersCount);
+  }, [user]);
+
+  const handleFollowToggle = async () => {
+    if (loading) {
+      return;
+    }
+    const prevIsFollowing = isFollowing;
+    const prevFollowersCount = followersCount;
+    try {
+      setLoading(true);
+      if (isFollowing) {
+        setIsFollowing(false);
+        setFollowersCount((prev) => prev - 1);
+        await unfollowUser(user.username);
+      } else {
+        setIsFollowing(true);
+        setFollowersCount((prev) => prev + 1);
+        await followUser(user.username);
+        toast.success(`You started following ${user.username}`);
+      }
+    } catch (error: any) {
+      setIsFollowing(prevIsFollowing);
+      setFollowersCount(prevFollowersCount);
+      toast.error(`${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="w-full rounded-3xl p-8">
       {/* Top Row: Avatar + Actions */}
       <div className="flex items-center justify-between">
         {/* Avatar */}
         <div className="relative">
-          <div className="w-24 h-24 rounded-full p-[2px] bg-gradient-to-br from-violet-500 via-fuchsia-500 to-cyan-400 shadow-[0_0_35px_rgba(168,85,247,0.45)]">
+          <div className="w-24 h-24 rounded-full p-0.5 bg-linear-to-br from-violet-500 via-fuchsia-500 to-cyan-400 shadow-[0_0_35px_rgba(168,85,247,0.45)]">
             <div className="w-full h-full rounded-full overflow-hidden bg-black">
               <img
                 src={user.profileImage || "/default-avatar.png"}
@@ -26,8 +65,16 @@ const UserInfo = ({ user }: UserInfoProps) => {
 
         {/* Actions */}
         <div className="flex gap-2">
-          <button className="px-4 py-2 rounded-xl text-sm font-semibold bg-[#9929EA] text-white cursor-pointer hover:scale-[1.02] transition">
-            Follow
+          <button
+            disabled={loading}
+            onClick={handleFollowToggle}
+            className={`px-4 py-2 rounded-xl text-sm font-semibold transition disabled:opacity-50 cursor-pointer hover:scale-[1.02] ${
+              isFollowing
+                ? "border border-white/20 text-white hover:bg-white/10"
+                : "bg-[#9929EA] text-white"
+            }`}
+          >
+            {isFollowing ? "Unfollow" : "Follow"}
           </button>
           <button className="px-4 py-2 rounded-xl text-sm font-semibold border border-white/15 text-white hover:bg-white/10 transition">
             Message
@@ -62,7 +109,7 @@ const UserInfo = ({ user }: UserInfoProps) => {
       <div className="mt-6 grid grid-cols-3 gap-4">
         {[
           { label: "Posts", value: user.postCount },
-          { label: "Followers", value: user.followersCount },
+          { label: "Followers", value: followersCount },
           { label: "Following", value: user.followingCount },
         ].map((stat) => (
           <div

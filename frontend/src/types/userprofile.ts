@@ -7,4 +7,5 @@ export interface userProfileInfoType {
   postCount: number;
   followersCount: number;
   followingCount: number;
+  isFollowing: boolean;
 }

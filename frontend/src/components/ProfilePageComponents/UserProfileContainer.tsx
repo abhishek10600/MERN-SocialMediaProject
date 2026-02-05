@@ -61,7 +61,7 @@ const UserProfileContainer = () => {
   }
 
   return (
-    <div className="max-w-[900px] mx-auto w-full p-6 flex flex-col gap-6">
+    <div className="max-w-225 mx-auto w-full flex flex-col">
       <UserInfo user={userProfileInfo} />
       {postLoading ? <Spinner /> : <UserPosts userPosts={userPosts} />}
     </div>

@@ -525,9 +525,10 @@ export const updateProfileImage = async (req: Request, res: Response) => {
 export const getUserProfileData = async (req: Request, res: Response) => {
   try {
     const { username } = req.params;
+    const loggedInUserId = req.user?._id; // optional auth
 
     if (!username) {
-      throw new ApiError(404, "usernamenot found");
+      throw new ApiError(400, "username is required");
     }
 
     const profileData = await User.aggregate([
@@ -545,20 +546,25 @@ export const getUserProfileData = async (req: Request, res: Response) => {
         },
       },
       {
+        $addFields: {
+          postCount: { $size: "$posts" },
+          followersCount: { $size: "$followers" },
+          followingCount: { $size: "$following" },
+          isFollowing: loggedInUserId
+            ? { $in: [loggedInUserId, "$followers"] }
+            : false,
+        },
+      },
+      {
         $project: {
           username: 1,
           email: 1,
           bio: 1,
           profileImage: 1,
-          postCount: {
-            $size: "$posts",
-          },
-          followersCount: {
-            $size: "$followers",
-          },
-          followingCount: {
-            $size: "$following",
-          },
+          postCount: 1,
+          followersCount: 1,
+          followingCount: 1,
+          isFollowing: 1,
         },
       },
     ]);
