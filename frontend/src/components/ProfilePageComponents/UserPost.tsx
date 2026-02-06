@@ -5,6 +5,7 @@ import { Heart, MessageCircle, User2 } from "lucide-react";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
 import { toast } from "react-toastify";
+import { toggleLikePost } from "../../api/like.api";
 
 interface props {
   post: UserPostType;
@@ -34,8 +35,7 @@ const UserPost = ({ post }: props) => {
         setLikeCount((prev) => prev + 1);
       }
 
-      // TODO: call backend like API here
-      // await toggleLike(post._id);
+      await toggleLikePost(post._id);
     } catch (error) {
       toast.error("Failed to like post");
     } finally {
@@ -48,20 +48,14 @@ const UserPost = ({ post }: props) => {
       <div className="post-container flex flex-col gap-2">
         <div className="flex items-center gap-2">
           {post.owner?.profileImage ? (
-            <Link to={`profile/${post.owner?.username}`}>
-              <img
-                className="aspect-square w-8 rounded-full object-cover"
-                src={post.owner.profileImage}
-              />
-            </Link>
+            <img
+              className="aspect-square w-8 rounded-full object-cover"
+              src={post.owner.profileImage}
+            />
           ) : (
-            <Link to={`profile/${post.owner.username}`}>
-              <User2 className="text-white" />
-            </Link>
+            <User2 className="text-white" />
           )}
-          <Link to={`profile/${post.owner.username}`}>
-            <span className="text-white">{post.owner.username}</span>
-          </Link>
+          <span className="text-white">{post.owner.username}</span>
         </div>
         <span className="text-xs text-white/60">
           {new Date(post.createdAt).toLocaleString()}

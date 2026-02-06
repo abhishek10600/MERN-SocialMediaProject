@@ -11,22 +11,17 @@ export const createComment = async (req: Request, res: Response) => {
     const { comment } = req.body;
 
     if (!userId) {
-      return new ApiError(404, "user id not found");
+      throw new ApiError(401, "Unauthorized");
     }
-
     if (!postId) {
-      return new ApiError(404, "postId not found");
+      throw new ApiError(400, "postId is required");
     }
-
-    if (!comment || comment === "") {
-      throw new ApiError(404, "comment is required");
+    if (!comment?.trim()) {
+      throw new ApiError(400, "comment is required");
     }
 
     const post = await Post.findById(postId);
-
-    if (!post) {
-      throw new ApiError(404, "post not found");
-    }
+    if (!post) throw new ApiError(404, "post not found");
 
     const createdComment = await Comment.create({
       comment,
@@ -37,12 +32,17 @@ export const createComment = async (req: Request, res: Response) => {
     post.comments.push(createdComment._id);
     await post.save({ validateBeforeSave: false });
 
+    const populatedComment = await createdComment.populate(
+      "commentedBy",
+      "username profileImage"
+    );
+
     return res
       .status(201)
       .json(
-        new ApiResponse(201, createdComment, "comment created successfully")
+        new ApiResponse(201, populatedComment, "comment created successfully")
       );
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("Error: ", error);
 
     if (error instanceof ApiError) {
@@ -65,14 +65,14 @@ export const getCommentsByPostId = async (req: Request, res: Response) => {
   try {
     const { postId } = req.params;
 
-    const comments = await Comment.find({
-      post: postId,
-    });
+    const comments = await Comment.find({ post: postId })
+      .populate("commentedBy", "username profileImage")
+      .sort({ createdAt: -1 });
 
     return res
       .status(200)
       .json(new ApiResponse(200, comments, "comments fetched successfully"));
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("Error: ", error);
 
     if (error instanceof ApiError) {
@@ -96,35 +96,19 @@ export const deleteComment = async (req: Request, res: Response) => {
     const userId = req.user?._id;
     const { postId, commentId } = req.params;
 
-    if (!userId) {
-      throw new ApiError(404, "user id not found");
-    }
-
-    if (!commentId) {
-      throw new ApiError(404, "comment id not found");
-    }
+    if (!userId) throw new ApiError(401, "Unauthorized");
 
     const post = await Post.findById(postId);
-
-    if (!post) {
-      throw new ApiError(404, "post not found");
-    }
+    if (!post) throw new ApiError(404, "post not found");
 
     const comment = await Comment.findById(commentId);
-
-    if (!comment) {
-      throw new ApiError(404, "comment not found");
-    }
-
-    if (!comment.post.equals(post._id)) {
-      throw new ApiError(400, "comment does not belong to this post");
-    }
+    if (!comment) throw new ApiError(404, "comment not found");
 
     const isPostOwner = post.owner.equals(userId);
     const isCommentOwner = comment.commentedBy.equals(userId);
 
     if (!isPostOwner && !isCommentOwner) {
-      throw new ApiError(401, "you are not authorized to perform this action");
+      throw new ApiError(403, "Not allowed");
     }
 
     await Comment.findByIdAndDelete(commentId);
@@ -136,7 +120,7 @@ export const deleteComment = async (req: Request, res: Response) => {
     return res
       .status(200)
       .json(new ApiResponse(200, null, "comment deleted successfully"));
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("Error: ", error);
 
     if (error instanceof ApiError) {
