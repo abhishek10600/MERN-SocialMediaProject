@@ -31,14 +31,18 @@ const Navbar = () => {
       </Link>
       <div className="flex justify-center items-center gap-2">
         {user?.profileImage ? (
-          <img
-            className="w-7.5 rounded-2xl bg-cover aspect-square border-2 border-[#9929EA] object-cover"
-            src={user?.profileImage}
-          />
+          <Link to={`/profile/${user?.username}`}>
+            <img
+              className="w-7.5 rounded-2xl bg-cover aspect-square border-2 border-[#9929EA] object-cover"
+              src={user?.profileImage}
+            />
+          </Link>
         ) : (
           <User2 className="text-white" />
         )}
-        <span className="text-white">{user?.username}</span>
+        <Link to={`/profile/${user?.username}`} className="text-white">
+          {user?.username}
+        </Link>
         <button
           onClick={handleLogout}
           className="bg-red-500 py-0.5 px-2 md:py-1 md:px-4 rounded-xl cursor-pointer hover:bg-red-700 hover:text-white"

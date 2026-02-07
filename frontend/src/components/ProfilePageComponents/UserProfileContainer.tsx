@@ -20,6 +20,27 @@ const UserProfileContainer = () => {
   const [postLoading, setPostLoading] = useState(true);
   const [userPosts, setUserPosts] = useState<UserPostType[]>([]);
 
+  const refetchProfile = async () => {
+    if (!username) {
+      return;
+    }
+    try {
+      const userProfileInfo = await getUserProfileInfo(username);
+      setUserProfileInfo(userProfileInfo);
+    } catch (error) {
+      console.log("Failed to fetch profile: ", error);
+    }
+  };
+
+  useEffect(() => {
+    const init = async () => {
+      setLoading(true);
+      await refetchProfile();
+      setLoading(false);
+    };
+    init();
+  }, [username]);
+
   useEffect(() => {
     if (!username) return;
 
@@ -62,7 +83,7 @@ const UserProfileContainer = () => {
 
   return (
     <div className="max-w-225 mx-auto w-full flex flex-col">
-      <UserInfo user={userProfileInfo} />
+      <UserInfo user={userProfileInfo} refetchProfile={refetchProfile} />
       {postLoading ? <Spinner /> : <UserPosts userPosts={userPosts} />}
     </div>
   );
