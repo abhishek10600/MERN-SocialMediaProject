@@ -13,6 +13,7 @@ const postSchema = new mongoose.Schema<IPostDocument, Model<IPostDocument>>(
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      required: true,
     },
     comments: [
       {

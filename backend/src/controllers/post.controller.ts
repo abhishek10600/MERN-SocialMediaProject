@@ -4,7 +4,7 @@ import { uploadToCloudinary } from "../utils/cloudinary";
 import { User } from "../models/user.model";
 import { Post } from "../models/post.model";
 import { ApiResponse } from "../utils/ApiResponse";
-import mongoose from "mongoose";
+import sanitizeHtml from "sanitize-html";
 
 export const createPost = async (req: Request, res: Response) => {
   try {
@@ -15,8 +15,24 @@ export const createPost = async (req: Request, res: Response) => {
       imageLocalPath = req.file.path;
       image = await uploadToCloudinary(imageLocalPath);
     }
+
     const { content } = req.body;
     const userId = req.user?._id;
+
+    // Sanitize HTML from TipTap
+    const cleanContent = sanitizeHtml(content, {
+      allowedTags: sanitizeHtml.defaults.allowedTags.concat(["img"]),
+      allowedAttributes: {
+        a: ["href", "target", "rel"],
+        img: ["src", "alt"],
+        span: ["style"],
+      },
+      allowedStyles: {
+        "*": {
+          "font-size": [/^\d+(px|em|rem)$/],
+        },
+      },
+    });
 
     const user = await User.findById(userId);
     if (!user) {
@@ -25,12 +41,12 @@ export const createPost = async (req: Request, res: Response) => {
 
     if (image === undefined) {
       post = await Post.create({
-        content,
+        content: cleanContent,
         owner: userId,
       });
     } else {
       post = await Post.create({
-        content,
+        content: cleanContent,
         image: image.url,
         owner: userId,
       });
@@ -38,7 +54,7 @@ export const createPost = async (req: Request, res: Response) => {
 
     return res
       .status(201)
-      .json(new ApiResponse(200, post, "post creted successfully"));
+      .json(new ApiResponse(201, post, "post creted successfully"));
   } catch (error: unknown) {
     console.error("Error: ", error);
 

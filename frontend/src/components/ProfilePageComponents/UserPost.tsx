@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { UserPostType } from "../../types/userPost";
 import { Link } from "react-router-dom";
 import { Heart, MessageCircle, Trash2, User2 } from "lucide-react";
@@ -28,6 +28,9 @@ const UserPost = ({ post }: props) => {
   const [commentsCount, setCommentsCount] = useState<number>(post.commentCount);
   const [commentText, setCommentText] = useState("");
   const [loadingComments, setLoadingComments] = useState<boolean>(false);
+  const [expanded, setExpanded] = useState<boolean>(false);
+  const contentRef = useRef<HTMLDivElement | null>(null);
+  const [isOverflowing, setIsOverflowing] = useState<boolean>(false);
   const isLikedByMe = user ? likes.includes(user._id) : false;
 
   const handleToggleLike = async () => {
@@ -98,54 +101,14 @@ const UserPost = ({ post }: props) => {
     }
   };
 
+  useEffect(() => {
+    if (contentRef.current) {
+      const element = contentRef.current;
+      setIsOverflowing(element.scrollHeight > element.clientHeight);
+    }
+  }, [post.content]);
+
   return (
-    // <section className="mx-10 my-4">
-    //   <div className="post-container flex flex-col gap-2">
-    //     <div className="flex items-center gap-2">
-    //       {post.owner?.profileImage ? (
-    //         <img
-    //           className="aspect-square w-8 rounded-full object-cover"
-    //           src={post.owner.profileImage}
-    //         />
-    //       ) : (
-    //         <User2 className="text-white" />
-    //       )}
-    //       <span className="text-white">{post.owner.username}</span>
-    //     </div>
-    //     <span className="text-xs text-white/60">
-    //       {new Date(post.createdAt).toLocaleString()}
-    //     </span>
-    //     {post.image && (
-    //       <div className="md:my-2">
-    //         <img src={post.image} className="rounded-xl max-h-105" />
-    //       </div>
-    //     )}
-    //     <p className="text-white">{post.content}</p>
-
-    //     <div className="flex items-center gap-4">
-    //       {/* likes */}
-    //       <div className="flex items-center gap-2">
-    //         <button
-    //           disabled={loading}
-    //           onClick={handleToggleLike}
-    //           className="flex items-center gap-1 text-white hover:text-pink-500 transition disabled:opacity-50 cursor-pointer"
-    //         >
-    //           <Heart
-    //             size={20}
-    //             className={`transition ${isLikedByMe ? "fill-pink-500 text-pink-500" : ""}`}
-    //           />
-    //           <span className="text-sm">{likeCount}</span>
-    //         </button>
-    //       </div>
-
-    //       {/* comment */}
-    //       <div className="flex items-center gap-1 text-white/80 cursor-pointer hover:text-white/50 transition disabled:opacity-50">
-    //         <MessageCircle size={20} />
-    //         <span className="text-sm">{post.commentCount}</span>
-    //       </div>
-    //     </div>
-    //   </div>
-    // </section>
     <section className="min-w-[60vw] md:px-32 md:py-8">
       <div className="flex flex-col gap-2">
         {/* Header */}
@@ -174,7 +137,24 @@ const UserPost = ({ post }: props) => {
 
         {post.image && <img src={post.image} className="rounded-xl" />}
 
-        <p className="text-white">{post.content}</p>
+        {/* Post content with read more */}
+        <div className="relative">
+          <div
+            ref={contentRef}
+            className={`prose prose-invert max-w-none text-white transition-all duration-300 ${
+              expanded ? "" : "line-clamp-3 overflow-hidden"
+            }`}
+            dangerouslySetInnerHTML={{ __html: post.content }}
+          />
+          {isOverflowing && (
+            <button
+              onClick={() => setExpanded((prev) => !prev)}
+              className="mt-1 text-sm text-white/60 cursor-pointer hover:underline"
+            >
+              {expanded ? "Show less" : "More"}
+            </button>
+          )}
+        </div>
 
         {/* Actions */}
         <div className="flex items-center gap-4">

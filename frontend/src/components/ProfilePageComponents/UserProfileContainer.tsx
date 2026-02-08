@@ -5,13 +5,17 @@ import {
   getUserProfileInfo,
   getUserProfilePosts,
 } from "../../api/userProfile.api";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import Spinner from "../General/Spinner";
 import UserPosts from "./UserPosts";
 import type { UserPostType } from "../../types/userPost";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../store/store";
+import { Upload, UploadIcon } from "lucide-react";
 
 const UserProfileContainer = () => {
   const { username } = useParams<{ username: string }>();
+  const loggedInUser = useSelector((state: RootState) => state.auth.user);
 
   const [userProfileInfo, setUserProfileInfo] =
     useState<userProfileInfoType | null>(null);
@@ -84,6 +88,17 @@ const UserProfileContainer = () => {
   return (
     <div className="max-w-225 mx-auto w-full flex flex-col">
       <UserInfo user={userProfileInfo} refetchProfile={refetchProfile} />
+      {loggedInUser?.username === username && (
+        <div className="flex justify-end px-8">
+          <Link
+            to="/upload-post"
+            className="px-4 py-2 rounded-xl text-sm font-semibold transition disabled:opacity-50 cursor-pointer hover:scale-[1.02] bg-[#9929EA] text-white flex justify-center items-center gap-1"
+          >
+            <UploadIcon size={18} />
+            Upload
+          </Link>
+        </div>
+      )}
       {postLoading ? <Spinner /> : <UserPosts userPosts={userPosts} />}
     </div>
   );
