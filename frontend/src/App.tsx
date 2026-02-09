@@ -12,6 +12,7 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import PublicRoute from "./routes/PublicRoute";
 import ProfilePage from "./pages/ProfilePage";
 import UploadPostPage from "./pages/UploadPostPage";
+import EditPostPage from "./pages/EditPostPage";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -54,6 +55,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <UploadPostPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="profile/testuser2/post/edit/:postId"
+          element={
+            <ProtectedRoute>
+              <EditPostPage />
             </ProtectedRoute>
           }
         />

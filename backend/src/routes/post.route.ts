@@ -5,6 +5,7 @@ import {
   createPost,
   getAllPostsForHome,
   getUserPosts,
+  getUserPostById,
   updatePostContent,
   deletePost,
 } from "../controllers/post.controller";
@@ -17,6 +18,7 @@ router
 
 router.route("/all-posts").get(verifyJWT, getAllPostsForHome);
 router.route("/user-posts/:username").get(verifyJWT, getUserPosts);
+router.route("/:postId").get(verifyJWT, getUserPostById);
 router
   .route("/update-post-content/:postId")
   .patch(verifyJWT, updatePostContent);

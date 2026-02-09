@@ -1,7 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import type { UserPostType } from "../../types/userPost";
 import { Link } from "react-router-dom";
-import { Heart, MessageCircle, Trash2, User2 } from "lucide-react";
+import {
+  Heart,
+  MessageCircle,
+  Pencil,
+  Trash,
+  Trash2,
+  User2,
+} from "lucide-react";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
 import { toast } from "react-toastify";
@@ -13,12 +20,15 @@ import {
   getCommentsByPostId,
 } from "../../api/comment.api";
 import Spinner from "../General/Spinner";
+import { deletePost } from "../../api/post.api";
+import ConfirmModal from "../General/ConfirmModal";
 
 interface props {
   post: UserPostType;
+  onDeletePost: (postId: string) => void;
 }
 
-const UserPost = ({ post }: props) => {
+const UserPost = ({ post, onDeletePost }: props) => {
   const user = useSelector((state: RootState) => state.auth.user);
   const [likes, setLikes] = useState<string[]>(post.likes);
   const [loading, setLoading] = useState(false);
@@ -32,6 +42,26 @@ const UserPost = ({ post }: props) => {
   const contentRef = useRef<HTMLDivElement | null>(null);
   const [isOverflowing, setIsOverflowing] = useState<boolean>(false);
   const isLikedByMe = user ? likes.includes(user._id) : false;
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleOpenConfirm = () => {
+    setShowConfirm(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      setDeleting(true);
+      await deletePost(post._id);
+      onDeletePost(post._id);
+      toast.success("Post deleted successfully");
+      setShowConfirm(false);
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to delete post");
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const handleToggleLike = async () => {
     if (!user) {
@@ -101,6 +131,16 @@ const UserPost = ({ post }: props) => {
     }
   };
 
+  const handleDeletePost = async (postId: string) => {
+    try {
+      const response = await deletePost(postId);
+      onDeletePost(postId);
+      toast.success("Post deleted successfully");
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  };
+
   useEffect(() => {
     if (contentRef.current) {
       const element = contentRef.current;
@@ -112,24 +152,53 @@ const UserPost = ({ post }: props) => {
     <section className="min-w-[60vw] md:px-32 md:py-8">
       <div className="flex flex-col gap-2">
         {/* Header */}
-        <div className="flex items-center gap-2">
-          {post.owner?.profileImage ? (
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {post.owner?.profileImage ? (
+              <Link to={`/profile/${post.owner.username}`}>
+                <img
+                  className="w-8 h-8 rounded-full object-cover"
+                  src={post.owner.profileImage}
+                  alt="profile"
+                />
+              </Link>
+            ) : (
+              <Link to={`/profile/${post.owner.username}`}>
+                <User2 className="text-white" />
+              </Link>
+            )}
             <Link to={`/profile/${post.owner.username}`}>
-              <img
-                className="w-8 h-8 rounded-full object-cover"
-                src={post.owner.profileImage}
-                alt="profile"
-              />
+              <span className="text-white">{post.owner.username}</span>
             </Link>
-          ) : (
-            <Link to={`/profile/${post.owner.username}`}>
-              <User2 className="text-white" />
-            </Link>
+          </div>
+          {user?.username === post.owner.username && (
+            <div className="flex items-center justify-center gap-2">
+              <Link
+                to={`post/edit/${post._id}`}
+                className="text-[#9929EA] hover:text-[#5f1792] transition"
+              >
+                <Pencil size={18} />
+              </Link>
+              <button
+                onClick={handleOpenConfirm}
+                className="text-red-500 cursor-pointer hover:text-red-800 transition"
+              >
+                <Trash size={18} />
+              </button>
+            </div>
           )}
-          <Link to={`/profile/${post.owner.username}`}>
-            <span className="text-white">{post.owner.username}</span>
-          </Link>
         </div>
+
+        <ConfirmModal
+          isOpen={showConfirm}
+          title="Delete Post?"
+          message="This action cannot be undone. Are you sure you want to delete this post?"
+          confirmText="Yes, delete"
+          cancelText="Cancel"
+          loading={deleting}
+          onCancel={() => setShowConfirm(false)}
+          onConfirm={handleConfirmDelete}
+        />
 
         <span className="text-xs text-white/60">
           {new Date(post.createdAt).toLocaleString()}

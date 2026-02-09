@@ -5,6 +5,7 @@ import { User } from "../models/user.model";
 import { Post } from "../models/post.model";
 import { ApiResponse } from "../utils/ApiResponse";
 import sanitizeHtml from "sanitize-html";
+import mongoose from "mongoose";
 
 export const createPost = async (req: Request, res: Response) => {
   try {
@@ -333,6 +334,54 @@ export const getUserPosts = async (req: Request, res: Response) => {
     return res
       .status(200)
       .json(new ApiResponse(200, posts, "user posts fetched successfully"));
+  } catch (error: unknown) {
+    console.error("Error: ", error);
+
+    if (error instanceof ApiError) {
+      return res.status(error.statusCode).json({
+        success: false,
+        message: error.message,
+        errors: error.errors,
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      errors: [],
+    });
+  }
+};
+
+export const getUserPostById = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?._id;
+    const { postId } = req.params;
+
+    if (!userId) {
+      throw new ApiError(404, "user id not found");
+    }
+
+    if (!postId) {
+      throw new ApiError(404, "post id not found");
+    }
+
+    const post = await Post.find({
+      _id: postId,
+      owner: userId,
+    })
+      .populate("owner", "username profileImage")
+      .populate("comments")
+      .populate("likes", "username profileImage");
+
+    if (!post) {
+      throw new ApiError(404, "Post not found or you are not the owner");
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Post fetched successfully",
+      data: post,
+    });
   } catch (error: unknown) {
     console.error("Error: ", error);
 

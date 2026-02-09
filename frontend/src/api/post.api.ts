@@ -9,3 +9,8 @@ export const createPost = async (formData: FormData) => {
 
   return response.data.data;
 };
+
+export const deletePost = async (postId: string) => {
+  const response = await api.delete(`posts/delete-post/${postId}`);
+  return response.data;
+};
