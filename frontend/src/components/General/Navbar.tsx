@@ -1,29 +1,12 @@
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
 import { User, User2 } from "lucide-react";
-import { logoutUser } from "../../api/auth.api";
-import { toast } from "react-toastify";
-import { logout } from "../../store/slices/authSlice";
 import { Link, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
   const user = useSelector((state: RootState) => state.auth.user);
-  const [serverError, setServerError] = useState<string | null>(null);
 
-  const handleLogout = async () => {
-    try {
-      const response = await logoutUser();
-      toast.success(response.message);
-      dispatch(logout());
-      navigate("/login", { replace: true });
-    } catch (error: any) {
-      setServerError(error.message);
-      toast.error(error.message);
-    }
-  };
   return (
     <nav className="min-h-[10vh] flex justify-between items-center px-4 py-4 md:px-20 md:py-4 border-b border-[#230737] shadow-[#230737] sticky">
       <Link to="/" className="text-[#9929EA] font-bold text-xl md:text-3xl">
@@ -43,12 +26,6 @@ const Navbar = () => {
         <Link to={`/profile/${user?.username}`} className="text-white">
           {user?.username}
         </Link>
-        <button
-          onClick={handleLogout}
-          className="bg-red-500 py-0.5 px-2 md:py-1 md:px-4 rounded-xl cursor-pointer hover:bg-red-700 hover:text-white"
-        >
-          Logout
-        </button>
       </div>
     </nav>
   );

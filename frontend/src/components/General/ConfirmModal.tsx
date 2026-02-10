@@ -31,7 +31,7 @@ const ConfirmModal = ({
           <button
             onClick={onCancel}
             disabled={loading}
-            className="px-4 py-2 rounded-lg bg-zinc-800 text-white hover:bg-zinc-700 transition disabled:opacity-50"
+            className="px-4 py-2 rounded-lg bg-zinc-800 text-white hover:bg-zinc-700 transition disabled:opacity-50 cursor-pointer"
           >
             {cancelText}
           </button>
@@ -39,7 +39,7 @@ const ConfirmModal = ({
           <button
             onClick={onConfirm}
             disabled={loading}
-            className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-500 transition disabled:opacity-50"
+            className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-500 transition disabled:opacity-50 cursor-pointer"
           >
             {loading ? "Deleting..." : confirmText}
           </button>

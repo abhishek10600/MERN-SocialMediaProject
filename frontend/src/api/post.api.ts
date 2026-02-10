@@ -14,3 +14,16 @@ export const deletePost = async (postId: string) => {
   const response = await api.delete(`posts/delete-post/${postId}`);
   return response.data;
 };
+
+export const getUserPostById = async (postId: string) => {
+  const response = await api.get(`posts/${postId}`);
+  return response.data.data;
+};
+
+export const updatePostContent = async (postId: string, content: string) => {
+  const response = await api.patch(`/posts/update-post-content/${postId}`, {
+    content,
+  });
+
+  return response.data.data;
+};
