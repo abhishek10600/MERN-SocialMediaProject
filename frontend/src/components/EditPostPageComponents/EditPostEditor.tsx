@@ -135,7 +135,7 @@ const EditPostEditor = ({ value, onChange }: Props) => {
       </div>
 
       {/* Editor */}
-      <div className="max-h-[350px] overflow-y-auto">
+      <div className="max-h-87.5 overflow-y-auto">
         <EditorContent editor={editor} />
       </div>
     </div>

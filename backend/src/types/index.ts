@@ -51,3 +51,21 @@ export interface ILike {
 }
 
 export interface ILikeDocument extends ILike, Document {}
+
+export interface IConversation {
+  participants: mongoose.Types.ObjectId[];
+  lastMessage?: mongoose.Types.ObjectId;
+}
+
+export interface IConversationDocument extends IConversation, Document {}
+
+export interface IMessage {
+  conversation: mongoose.Types.ObjectId;
+  sender: mongoose.Types.ObjectId;
+  text?: string;
+  image?: string;
+  seenBy: mongoose.Types.ObjectId[];
+  createdAt: Date;
+}
+
+export interface IMessageDocument extends IMessage, Document {}

@@ -20,11 +20,13 @@ import userRouter from "./routes/user.route";
 import postRouter from "./routes/post.route";
 import commentRouter from "./routes/comment.route";
 import likeRouter from "./routes/like.route";
+import chatRouter from "./routes/chat.route";
 
 app.use("/api/v1/test", testRoute);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/posts", postRouter);
 app.use("/api/v1/comments", commentRouter);
 app.use("/api/v1/likes", likeRouter);
+app.use("/api/v1/chats", chatRouter);
 
 export default app;
