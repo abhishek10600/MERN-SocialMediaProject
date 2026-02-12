@@ -13,6 +13,7 @@ import PublicRoute from "./routes/PublicRoute";
 import ProfilePage from "./pages/ProfilePage";
 import UploadPostPage from "./pages/UploadPostPage";
 import EditPostPage from "./pages/EditPostPage";
+import ChatPage from "./pages/ChatPage";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -63,6 +64,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <EditPostPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="chat/:username/rcid/:receiverId"
+          element={
+            <ProtectedRoute>
+              <ChatPage />
             </ProtectedRoute>
           }
         />

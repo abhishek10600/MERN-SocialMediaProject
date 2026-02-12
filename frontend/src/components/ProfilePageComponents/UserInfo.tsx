@@ -10,7 +10,7 @@ import { useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
 import Spinner from "../General/Spinner";
 import { addBio, updateBio } from "../../api/userProfile.api";
-import { Pencil, Check, X } from "lucide-react";
+import { Pencil, Check, X, User2 } from "lucide-react";
 
 interface UserInfoProps {
   user: userProfileInfoType;
@@ -129,11 +129,17 @@ const UserInfo = ({ user, refetchProfile }: UserInfoProps) => {
         <div className="relative">
           <div className="w-24 h-24 rounded-full p-0.5 bg-linear-to-br from-violet-500 via-fuchsia-500 to-cyan-400 shadow-[0_0_35px_rgba(168,85,247,0.45)]">
             <div className="w-full h-full rounded-full overflow-hidden bg-black">
-              <img
-                src={user.profileImage || "/defaultavatar.png"}
-                alt={user.username}
-                className="w-full h-full object-cover"
-              />
+              {user.profileImage ? (
+                <img
+                  src={user.profileImage || "/defaultavatar.png"}
+                  alt={user.username}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="z-10">
+                  <User2 />
+                </div>
+              )}
             </div>
           </div>
           {isOwnProfile && (

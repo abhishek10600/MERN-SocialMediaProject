@@ -43,7 +43,7 @@ messageSchema.pre("validate", function () {
 });
 
 messageSchema.pre("save", function () {
-  if (this.isNew && this.sender && !this.seenBy?.length) {
+  if (this.isNew && this.sender && (!this.seenBy || this.seenBy.length === 0)) {
     this.seenBy = [this.sender];
   }
 });

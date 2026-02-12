@@ -4,7 +4,6 @@ import { Conversation } from "../models/conversation.model";
 import { ApiResponse } from "../utils/ApiResponse";
 import { uploadToCloudinary } from "../utils/cloudinary";
 import { Message } from "../models/message.model";
-import mongoose from "mongoose";
 
 export const getOrCreateConversation = async (req: Request, res: Response) => {
   try {
@@ -19,18 +18,18 @@ export const getOrCreateConversation = async (req: Request, res: Response) => {
       throw new ApiError(400, "cannot caht with yourself");
     }
 
-    const participants = [userId, receiverId].sort();
+    const participants = [userId, receiverId];
 
     let conversation = await Conversation.findOne({
       participants: {
         $all: participants,
+        $size: 2,
       },
     });
-    console.log({ conversation });
+
     if (!conversation) {
       conversation = await Conversation.create({ participants });
     }
-    console.log({ createdConversation: conversation });
 
     return res
       .status(200)
@@ -123,10 +122,20 @@ export const sendMessage = async (req: Request, res: Response) => {
 
 export const getMessages = async (req: Request, res: Response) => {
   try {
+    const userId = req.user?._id;
     const { conversationId } = req.params;
     if (!conversationId) {
       throw new ApiError(404, "conversation id not found");
     }
+    const conversation = await Conversation.findById(conversationId);
+    if (!conversation) {
+      throw new ApiError(404, "conversation not found");
+    }
+
+    if (!conversation.participants.some((id: any) => id.equals(userId))) {
+      throw new ApiError(404, "not authorized");
+    }
+    
     const page = Number(req.query.page) || 1;
     const limit = 20;
     const skip = (page - 1) * limit;
@@ -141,6 +150,87 @@ export const getMessages = async (req: Request, res: Response) => {
       .status(200)
       .json(new ApiResponse(200, messages, "messages fetcehd successfully"));
   } catch (error: unknown) {
+    console.error("Error: ", error);
+
+    if (error instanceof ApiError) {
+      return res.status(error.statusCode).json({
+        success: false,
+        message: error.message,
+        errors: error.errors,
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      errors: [],
+    });
+  }
+};
+
+export const markSeen = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?._id;
+    const { conversationId } = req.params;
+
+    if (!userId) {
+      throw new ApiError(404, "user id not found");
+    }
+
+    if (!conversationId) {
+      throw new ApiError(404, "conversation id not found");
+    }
+
+    await Message.updateMany(
+      { conversation: conversationId, seenBy: { $ne: userId } },
+      { $addToSet: { seenBy: userId } }
+    );
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, null, "message marked as seen"));
+  } catch (error: unknown) {
+    console.error("Error: ", error);
+
+    if (error instanceof ApiError) {
+      return res.status(error.statusCode).json({
+        success: false,
+        message: error.message,
+        errors: error.errors,
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      errors: [],
+    });
+  }
+};
+
+export const getUserConversations = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?._id;
+    const conversations = await Conversation.find({
+      participants: userId,
+    })
+      .populate("participants", "username profileImage")
+      .populate({
+        path: "lastMessage",
+        populate: { path: "sender", select: "username profileImage" },
+      })
+      .sort({ updatedAt: -1 });
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          conversations,
+          "conversations fetched successfully"
+        )
+      );
+  } catch (error) {
     console.error("Error: ", error);
 
     if (error instanceof ApiError) {

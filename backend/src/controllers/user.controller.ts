@@ -726,3 +726,36 @@ export const unfollowUser = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const getUserFollowers = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?._id;
+    if (!userId) {
+      throw new ApiError(404, "user id not found");
+    }
+    const user = await User.findById(userId).populate(
+      "followers",
+      "username profileImage"
+    );
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, user, "followers fetched successfully"));
+  } catch (error: unknown) {
+    console.error("Error: ", error);
+
+    if (error instanceof ApiError) {
+      return res.status(error.statusCode).json({
+        success: false,
+        message: error.message,
+        errors: error.errors,
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      errors: [],
+    });
+  }
+};

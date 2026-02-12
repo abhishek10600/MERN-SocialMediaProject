@@ -23,6 +23,12 @@ const conversationSchema = new mongoose.Schema<
   }
 );
 
+conversationSchema.pre("save", function () {
+  this.participants.sort((a: any, b: any) =>
+    a.toString().localeCompare(b.toString())
+  );
+});
+
 conversationSchema.index({ participants: 1 }, { unique: true });
 
 export const Conversation = mongoose.model<IConversationDocument>(
