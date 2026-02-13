@@ -1,6 +1,219 @@
+import { useEffect, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
+import type { Message } from "../../types/chat";
+import {
+  getMessages,
+  getOrCreateConversation,
+  sendMessage,
+} from "../../api/chat.api";
+import Spinner from "../General/Spinner";
+import { Image as ImageIcon, X } from "lucide-react";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../store/store";
+import { toast } from "react-toastify";
 
 const ChatContainer = () => {
-  return <div>ChatPageContainer</div>;
+  const { receiverId } = useParams<{ receiverId: string }>();
+
+  // TODO: Replace with your actual auth user id
+  const loggedInUser = useSelector((state: RootState) => state.auth.user);
+
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [text, setText] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [sendMessageLoading, setSendMessageLoading] = useState<boolean>(false);
+
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    const initChat = async () => {
+      if (!receiverId) return;
+
+      try {
+        setLoading(true);
+        const conv = await getOrCreateConversation(receiverId);
+        setConversationId(conv._id);
+
+        const msgs = await getMessages(conv._id);
+        setMessages(msgs.reverse());
+      } catch (error) {
+        console.error("Failed to fetch chat", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initChat();
+  }, [receiverId]);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const handlePickImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleSend = async () => {
+    if (!conversationId || (!text.trim() && !imageFile)) {
+      return;
+    }
+    try {
+      setSendMessageLoading(true);
+      const formData = new FormData();
+      formData.append("conversationId", conversationId);
+
+      if (text.trim()) {
+        formData.append("text", text);
+      }
+      if (imageFile) {
+        formData.append("image", imageFile);
+      }
+
+      const msg = await sendMessage(formData);
+
+      setMessages((prev) => [...prev, msg]);
+      setText("");
+      removeImage();
+    } catch (error: any) {
+      console.log(error);
+      toast.error(error.message || "Failed to send message");
+    } finally {
+      setSendMessageLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="p-4 text-white">
+        <Spinner />
+        Loading chat...
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        {messages.map((msg) => {
+          const isMe = msg.sender._id === loggedInUser?._id;
+
+          return (
+            <div
+              key={msg._id}
+              className={`flex items-end gap-2 ${
+                isMe ? "justify-end" : "justify-start"
+              }`}
+            >
+              {!isMe && (
+                <img
+                  src={msg.sender.profileImage}
+                  alt={msg.sender.username}
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+              )}
+
+              <div
+                className={`max-w-[70%] px-4 py-2 rounded-2xl text-sm break-words ${
+                  isMe
+                    ? "bg-[#9929EA] text-white rounded-br-none"
+                    : "bg-white/10 text-white rounded-bl-none"
+                }`}
+              >
+                {!isMe && (
+                  <p className="text-xs opacity-60 mb-1">
+                    @{msg.sender.username}
+                  </p>
+                )}
+
+                {msg.text && <p>{msg.text}</p>}
+
+                {msg.image && (
+                  <img src={msg.image} className="mt-2 rounded-lg max-w-full" />
+                )}
+
+                <p className="text-[10px] opacity-50 text-right mt-1">
+                  {new Date(msg.createdAt).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+              </div>
+            </div>
+          );
+        })}
+
+        <div ref={bottomRef} />
+      </div>
+
+      {/* Image Preview */}
+      {imagePreview && (
+        <div className="px-4 pb-2">
+          <div className="relative inline-block">
+            <img
+              src={imagePreview}
+              className="w-32 h-32 object-cover rounded-lg border border-white/20"
+            />
+            <button
+              onClick={removeImage}
+              className="absolute -top-2 -right-2 bg-black rounded-full p-1"
+            >
+              <X size={16} className="text-white" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Input */}
+      <div className="p-4 border-t border-white/10 flex gap-2 items-center">
+        <input
+          type="file"
+          accept="image/*"
+          hidden
+          ref={fileInputRef}
+          onChange={handlePickImage}
+        />
+
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white cursor-pointer"
+        >
+          <ImageIcon size={18} />
+        </button>
+
+        <input
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSend()}
+          className="flex-1 bg-black border border-white/20 rounded px-3 py-2 text-white"
+          placeholder="Type a message..."
+        />
+
+        <button
+          disabled={(!text.trim() && !imageFile) || sendMessageLoading}
+          onClick={handleSend}
+          className="px-4 py-2 rounded-xl text-sm font-semibold transition disabled:opacity-50 hover:scale-[1.02] bg-[#9929EA] text-white cursor-pointer flex justify-center items-center"
+        >
+          {sendMessageLoading ? <Spinner /> : "Send"}
+        </button>
+      </div>
+    </div>
+  );
 };
 
 export default ChatContainer;

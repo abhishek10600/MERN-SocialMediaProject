@@ -1,19 +1,22 @@
 import { useEffect, useState } from "react";
-import type { Follower } from "../../types/followers";
-import { getMyFollowers } from "../../api/chat.api";
+import type { Conversation } from "../../types/chat";
+import { getUserConversations } from "../../api/chat.api";
 import Spinner from "./Spinner";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../store/store";
 
 const ChatBar = () => {
-  const [followers, setFollowers] = useState<Follower[]>([]);
+  const loggedInUser = useSelector((state: RootState) => state.auth.user);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    const fetchFollowers = async () => {
+    const loadConversations = async () => {
       try {
         setLoading(true);
-        const response = await getMyFollowers();
-        setFollowers(response);
+        const response = await getUserConversations();
+        setConversations(response);
       } catch (error) {
         console.log("Failed to fetch your followers");
       } finally {
@@ -21,7 +24,7 @@ const ChatBar = () => {
       }
     };
 
-    fetchFollowers();
+    loadConversations();
   }, []);
 
   return (
@@ -34,27 +37,37 @@ const ChatBar = () => {
         <div className="flex-1 flex items-center justify-center">
           <Spinner />
         </div>
-      ) : followers.length === 0 ? (
+      ) : conversations.length === 0 ? (
         <p className="text-sm text-white/60 text-center mt-6">
-          No followers yet
+          No conversations yet
         </p>
       ) : (
         <div className="flex-1 overflow-y-auto">
-          {followers.map((user) => (
-            <Link
-              to={`chat/${user.username}/rcid/${user._id}`}
-              key={user._id}
-              className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 cursor-pointer transition"
-              onClick={() => console.log("Open chat with", user._id)}
-            >
-              <img
-                src={user.profileImage || "/avatar.png"}
-                className="w-9 h-9 rounded-full object-cover"
-                alt=""
-              />
-              <span className="text-sm font-medium">{user.username}</span>
-            </Link>
-          ))}
+          {conversations.map((conv) => {
+            const otherUser = conv.participants.find(
+              (p) => p._id !== loggedInUser?._id,
+            );
+            return (
+              <Link
+                key={conv._id}
+                to={`chat/${otherUser?._id}`}
+                className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 cursor-pointer transition"
+                onClick={() => console.log("Open chat with", otherUser?._id)}
+              >
+                <img
+                  src={otherUser?.profileImage || "/avatar.png"}
+                  className="w-9 h-9 rounded-full object-cover"
+                  alt=""
+                />
+                <span className="text-sm font-medium">
+                  {otherUser?.username}
+                </span>
+                <span className="text-sm text-white/60 truncate max-w-[160px]">
+                  {conv.lastMessage?.text || "Image"}
+                </span>
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>
