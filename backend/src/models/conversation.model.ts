@@ -29,8 +29,6 @@ conversationSchema.pre("save", function () {
   );
 });
 
-conversationSchema.index({ participants: 1 }, { unique: true });
-
 export const Conversation = mongoose.model<IConversationDocument>(
   "Conversation",
   conversationSchema

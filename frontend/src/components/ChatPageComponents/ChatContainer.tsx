@@ -14,6 +14,7 @@ import { toast } from "react-toastify";
 
 const ChatContainer = () => {
   const { receiverId } = useParams<{ receiverId: string }>();
+  console.log({ receiverId });
 
   // TODO: Replace with your actual auth user id
   const loggedInUser = useSelector((state: RootState) => state.auth.user);
@@ -36,6 +37,7 @@ const ChatContainer = () => {
       try {
         setLoading(true);
         const conv = await getOrCreateConversation(receiverId);
+        console.log({ conv });
         setConversationId(conv._id);
 
         const msgs = await getMessages(conv._id);
@@ -69,6 +71,10 @@ const ChatContainer = () => {
   };
 
   const handleSend = async () => {
+    if (!conversationId) {
+      toast.error("Chat is still loading. Please wait...");
+      return;
+    }
     if (!conversationId || (!text.trim() && !imageFile)) {
       return;
     }
@@ -205,7 +211,11 @@ const ChatContainer = () => {
         />
 
         <button
-          disabled={(!text.trim() && !imageFile) || sendMessageLoading}
+          disabled={
+            !conversationId ||
+            (!text.trim() && !imageFile) ||
+            sendMessageLoading
+          }
           onClick={handleSend}
           className="px-4 py-2 rounded-xl text-sm font-semibold transition disabled:opacity-50 hover:scale-[1.02] bg-[#9929EA] text-white cursor-pointer flex justify-center items-center"
         >

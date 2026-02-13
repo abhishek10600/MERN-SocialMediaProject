@@ -4,6 +4,7 @@ import { Conversation } from "../models/conversation.model";
 import { ApiResponse } from "../utils/ApiResponse";
 import { uploadToCloudinary } from "../utils/cloudinary";
 import { Message } from "../models/message.model";
+import mongoose from "mongoose";
 
 export const getOrCreateConversation = async (req: Request, res: Response) => {
   try {
@@ -36,6 +37,7 @@ export const getOrCreateConversation = async (req: Request, res: Response) => {
       .json(new ApiResponse(200, conversation, "conversation fetched"));
   } catch (error: unknown) {
     console.error("Error: ", error);
+    // console.error(error.stack || error);
 
     if (error instanceof ApiError) {
       return res.status(error.statusCode).json({
@@ -135,7 +137,7 @@ export const getMessages = async (req: Request, res: Response) => {
     if (!conversation.participants.some((id: any) => id.equals(userId))) {
       throw new ApiError(404, "not authorized");
     }
-    
+
     const page = Number(req.query.page) || 1;
     const limit = 20;
     const skip = (page - 1) * limit;

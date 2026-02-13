@@ -11,6 +11,7 @@ import type { RootState } from "../../store/store";
 import Spinner from "../General/Spinner";
 import { addBio, updateBio } from "../../api/userProfile.api";
 import { Pencil, Check, X, User2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface UserInfoProps {
   user: userProfileInfoType;
@@ -18,6 +19,7 @@ interface UserInfoProps {
 }
 
 const UserInfo = ({ user, refetchProfile }: UserInfoProps) => {
+  const navigate = useNavigate();
   const loggedInUser = useSelector((state: RootState) => state.auth.user);
   const [isFollowing, setIsFollowing] = useState(user.isFollowing);
   const [followersCount, setFollowersCount] = useState<number>(
@@ -183,7 +185,10 @@ const UserInfo = ({ user, refetchProfile }: UserInfoProps) => {
           )}
 
           {!isOwnProfile && (
-            <button className="px-4 py-2 rounded-xl text-sm font-semibold border border-white/15 text-white hover:bg-white/10 transition">
+            <button
+              className="px-4 py-2 rounded-xl text-sm font-semibold border border-white/15 text-white hover:bg-white/10 transition cursor-pointer"
+              onClick={() => navigate(`/chat/${user?._id}`)}
+            >
               Message
             </button>
           )}

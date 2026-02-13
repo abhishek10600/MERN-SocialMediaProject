@@ -2,14 +2,15 @@ import { useEffect, useState } from "react";
 import type { Conversation } from "../../types/chat";
 import { getUserConversations } from "../../api/chat.api";
 import Spinner from "./Spinner";
-import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import type { RootState } from "../../store/store";
 
 const ChatBar = () => {
   const loggedInUser = useSelector((state: RootState) => state.auth.user);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadConversations = async () => {
@@ -48,11 +49,11 @@ const ChatBar = () => {
               (p) => p._id !== loggedInUser?._id,
             );
             return (
-              <Link
+              <div
                 key={conv._id}
-                to={`chat/${otherUser?._id}`}
+                onClick={() => navigate(`/chat/${otherUser?._id}`)}
                 className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 cursor-pointer transition"
-                onClick={() => console.log("Open chat with", otherUser?._id)}
+                // onClick={() => console.log("Open chat with", otherUser?._id)}
               >
                 <img
                   src={otherUser?.profileImage || "/avatar.png"}
@@ -65,7 +66,7 @@ const ChatBar = () => {
                 <span className="text-sm text-white/60 truncate max-w-[160px]">
                   {conv.lastMessage?.text || "Image"}
                 </span>
-              </Link>
+              </div>
             );
           })}
         </div>
