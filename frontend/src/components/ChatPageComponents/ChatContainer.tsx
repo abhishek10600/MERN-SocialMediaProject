@@ -11,12 +11,12 @@ import { Image as ImageIcon, X } from "lucide-react";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
 import { toast } from "react-toastify";
+import { socket } from "../../socket";
 
 const ChatContainer = () => {
   const { receiverId } = useParams<{ receiverId: string }>();
   console.log({ receiverId });
 
-  // TODO: Replace with your actual auth user id
   const loggedInUser = useSelector((state: RootState) => state.auth.user);
 
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -51,6 +51,27 @@ const ChatContainer = () => {
 
     initChat();
   }, [receiverId]);
+
+  useEffect(() => {
+    if (!conversationId) {
+      return;
+    }
+    socket.emit("join_conversation", conversationId);
+
+    const handleNewMessage = (msg: Message) => {
+      setMessages((prev) => {
+        if (prev.some((m) => m._id === msg._id)) return prev;
+        return [...prev, msg];
+      });
+    };
+
+    socket.on("new_message", handleNewMessage);
+
+    return () => {
+      socket.off("new_message", handleNewMessage);
+      socket.emit("leave_conversation", conversationId);
+    };
+  }, [conversationId]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -92,7 +113,7 @@ const ChatContainer = () => {
 
       const msg = await sendMessage(formData);
 
-      setMessages((prev) => [...prev, msg]);
+      // setMessages((prev) => [...prev, msg]);
       setText("");
       removeImage();
     } catch (error: any) {

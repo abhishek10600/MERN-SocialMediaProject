@@ -5,6 +5,7 @@ import { ApiResponse } from "../utils/ApiResponse";
 import { uploadToCloudinary } from "../utils/cloudinary";
 import { Message } from "../models/message.model";
 import mongoose from "mongoose";
+import { io } from "../index";
 
 export const getOrCreateConversation = async (req: Request, res: Response) => {
   try {
@@ -15,17 +16,17 @@ export const getOrCreateConversation = async (req: Request, res: Response) => {
       throw new ApiError(400, "invalid users");
     }
 
-    if (userId.equals(receiverId)) {
-      throw new ApiError(400, "cannot caht with yourself");
+    if (userId.toString() === receiverId.toString()) {
+      throw new ApiError(400, "cannot chat with yourself");
     }
 
-    const participants = [userId, receiverId];
+    const participants = [
+      new mongoose.Types.ObjectId(userId),
+      new mongoose.Types.ObjectId(receiverId),
+    ].sort((a: any, b: any) => a.toString().localeCompare(b.toString()));
 
     let conversation = await Conversation.findOne({
-      participants: {
-        $all: participants,
-        $size: 2,
-      },
+      participants,
     });
 
     if (!conversation) {
@@ -37,7 +38,6 @@ export const getOrCreateConversation = async (req: Request, res: Response) => {
       .json(new ApiResponse(200, conversation, "conversation fetched"));
   } catch (error: unknown) {
     console.error("Error: ", error);
-    // console.error(error.stack || error);
 
     if (error instanceof ApiError) {
       return res.status(error.statusCode).json({
@@ -69,7 +69,11 @@ export const sendMessage = async (req: Request, res: Response) => {
     if (!conversation) {
       throw new ApiError(404, "conversation not found");
     }
-    if (!conversation.participants.some((id) => id.equals(senderId))) {
+    if (
+      !conversation.participants.some(
+        (p: any) => p.toString() === senderId.toString()
+      )
+    ) {
       throw new ApiError(404, "not a participant");
     }
     let image;
@@ -100,6 +104,8 @@ export const sendMessage = async (req: Request, res: Response) => {
 
     const populated = await message.populate("sender", "username profileImage");
 
+    io.to(conversationId.toString()).emit("new_message", populated);
+
     return res
       .status(201)
       .json(new ApiResponse(201, populated, "message sent successfully"));
@@ -125,6 +131,9 @@ export const sendMessage = async (req: Request, res: Response) => {
 export const getMessages = async (req: Request, res: Response) => {
   try {
     const userId = req.user?._id;
+    if (!userId) {
+      throw new ApiError(404, "user id not found");
+    }
     const { conversationId } = req.params;
     if (!conversationId) {
       throw new ApiError(404, "conversation id not found");
@@ -134,7 +143,11 @@ export const getMessages = async (req: Request, res: Response) => {
       throw new ApiError(404, "conversation not found");
     }
 
-    if (!conversation.participants.some((id: any) => id.equals(userId))) {
+    if (
+      !conversation.participants.some(
+        (p: any) => p.toString() === userId.toString()
+      )
+    ) {
       throw new ApiError(404, "not authorized");
     }
 
@@ -164,7 +177,7 @@ export const getMessages = async (req: Request, res: Response) => {
 
     return res.status(500).json({
       success: false,
-      message: "Internal Server Error",
+      message: (error as Error).message,
       errors: [],
     });
   }
