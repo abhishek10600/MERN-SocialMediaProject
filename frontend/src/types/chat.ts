@@ -12,6 +12,7 @@ export type Conversation = {
     image?: string;
     sender: User;
   };
+  unreadCount: number;
 };
 
 export type Message = {

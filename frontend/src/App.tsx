@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import FeedPage from "./pages/FeedPage";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
@@ -14,8 +14,10 @@ import ProfilePage from "./pages/ProfilePage";
 import UploadPostPage from "./pages/UploadPostPage";
 import EditPostPage from "./pages/EditPostPage";
 import ChatPage from "./pages/ChatPage";
+import { connectSocket } from "./socket";
 
 const App = () => {
+  const user = useSelector((state: RootState) => state.auth.user);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -31,6 +33,26 @@ const App = () => {
 
     loadUser();
   }, [dispatch]);
+
+  useEffect(() => {
+    if (!user?._id) {
+      return;
+    }
+    const socket = connectSocket(user?._id);
+
+    socket.on("postLiked", (data) => {
+      console.log("Notification received: ", data);
+      toast.success(`${data.message}`);
+    });
+
+    socket.on("postCommented", (data) => {
+      toast.success(`${data.commentedBy.username} commented on your post`);
+    });
+
+    return () => {
+      socket?.disconnect();
+    };
+  }, [user?._id]);
 
   return (
     <div className="min-h-screen bg-[#000000]  w-full overflow-x-hidden">

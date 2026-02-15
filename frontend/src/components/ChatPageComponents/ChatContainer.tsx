@@ -5,13 +5,14 @@ import {
   getMessages,
   getOrCreateConversation,
   sendMessage,
+  markSeen,
 } from "../../api/chat.api";
 import Spinner from "../General/Spinner";
 import { Image as ImageIcon, X } from "lucide-react";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
 import { toast } from "react-toastify";
-import { socket } from "../../socket";
+import { getSocket } from "../../socket";
 
 const ChatContainer = () => {
   const { receiverId } = useParams<{ receiverId: string }>();
@@ -42,6 +43,8 @@ const ChatContainer = () => {
 
         const msgs = await getMessages(conv._id);
         setMessages(msgs.reverse());
+
+        await markSeen(conv._id);
       } catch (error) {
         console.error("Failed to fetch chat", error);
       } finally {
@@ -56,13 +59,22 @@ const ChatContainer = () => {
     if (!conversationId) {
       return;
     }
+
+    const socket = getSocket();
+    if (!socket) {
+      return;
+    }
     socket.emit("join_conversation", conversationId);
 
-    const handleNewMessage = (msg: Message) => {
+    const handleNewMessage = async (msg: Message) => {
       setMessages((prev) => {
         if (prev.some((m) => m._id === msg._id)) return prev;
         return [...prev, msg];
       });
+
+      if (msg.sender._id !== loggedInUser?._id) {
+        await markSeen(conversationId);
+      }
     };
 
     socket.on("new_message", handleNewMessage);
@@ -113,7 +125,6 @@ const ChatContainer = () => {
 
       const msg = await sendMessage(formData);
 
-      // setMessages((prev) => [...prev, msg]);
       setText("");
       removeImage();
     } catch (error: any) {

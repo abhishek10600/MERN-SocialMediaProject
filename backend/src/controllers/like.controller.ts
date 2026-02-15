@@ -3,6 +3,7 @@ import { ApiError } from "../utils/ApiError";
 import { Post } from "../models/post.model";
 import { ApiResponse } from "../utils/ApiResponse";
 import mongoose from "mongoose";
+import { io } from "../index";
 
 export const togglePostLike = async (req: Request, res: Response) => {
   try {
@@ -36,6 +37,14 @@ export const togglePostLike = async (req: Request, res: Response) => {
       await Post.findByIdAndUpdate(postId, {
         $addToSet: { likes: userId },
       });
+
+      if (post.owner.toString() !== userId.toString()) {
+        io.to(post.owner.toString()).emit("postLiked", {
+          postId,
+          likedBy: userId,
+          message: "Someone liked your post",
+        });
+      }
       return res
         .status(201)
         .json(new ApiResponse(201, null, `you liked the post`));

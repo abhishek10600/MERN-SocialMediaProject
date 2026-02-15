@@ -23,3 +23,8 @@ export const sendMessage = async (data: FormData) => {
   });
   return response.data.data;
 };
+
+export const markSeen = async (conversationId: string) => {
+  const response = await api.patch(`/chats/seen/${conversationId}`);
+  return response.data.data;
+};

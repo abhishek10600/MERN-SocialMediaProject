@@ -29,8 +29,17 @@ export const getOrCreateConversation = async (req: Request, res: Response) => {
       participants,
     });
 
+    let isNew: boolean = false;
+
     if (!conversation) {
       conversation = await Conversation.create({ participants });
+      isNew = true;
+    }
+
+    if (isNew) {
+      participants.forEach((participantId: any) => {
+        io.to(participantId.toString()).emit("conversation_updated");
+      });
     }
 
     return res
@@ -105,6 +114,10 @@ export const sendMessage = async (req: Request, res: Response) => {
     const populated = await message.populate("sender", "username profileImage");
 
     io.to(conversationId.toString()).emit("new_message", populated);
+
+    conversation.participants.forEach((participantId: any) => {
+      io.to(participantId.toString()).emit("conversation_updated");
+    });
 
     return res
       .status(201)
@@ -201,6 +214,8 @@ export const markSeen = async (req: Request, res: Response) => {
       { $addToSet: { seenBy: userId } }
     );
 
+    io.to(userId.toString()).emit("conversation_updated");
+
     return res
       .status(200)
       .json(new ApiResponse(200, null, "message marked as seen"));
@@ -236,12 +251,26 @@ export const getUserConversations = async (req: Request, res: Response) => {
       })
       .sort({ updatedAt: -1 });
 
+    const conversationsWithUnread = await Promise.all(
+      conversations.map(async (conv) => {
+        const unreadCount = await Message.countDocuments({
+          conversation: conv._id,
+          seenBy: { $ne: userId },
+        });
+
+        return {
+          ...conv.toObject(),
+          unreadCount,
+        };
+      })
+    );
+
     return res
       .status(200)
       .json(
         new ApiResponse(
           200,
-          conversations,
+          conversationsWithUnread,
           "conversations fetched successfully"
         )
       );

@@ -3,6 +3,7 @@ import { ApiError } from "../utils/ApiError";
 import { Post } from "../models/post.model";
 import { Comment } from "../models/comment.model";
 import { ApiResponse } from "../utils/ApiResponse";
+import { io } from "../index";
 
 export const createComment = async (req: Request, res: Response) => {
   try {
@@ -32,10 +33,26 @@ export const createComment = async (req: Request, res: Response) => {
     post.comments.push(createdComment._id);
     await post.save({ validateBeforeSave: false });
 
-    const populatedComment = await createdComment.populate(
-      "commentedBy",
-      "username profileImage"
-    );
+    const populatedComment = await createdComment.populate<{
+      commentedBy: {
+        _id: string;
+        username: string;
+        profileImage?: string;
+      };
+    }>("commentedBy", "username profileImage");
+
+    console.log({ populatedComment });
+
+    if (post.owner.toString() !== userId.toString()) {
+      io.to(post.owner.toString()).emit("postCommented", {
+        postId,
+        commentedBy: {
+          _id: userId,
+          username: populatedComment.commentedBy?.username,
+        },
+        message: `${populatedComment.commentedBy?.username} commented on your post`,
+      });
+    }
 
     return res
       .status(201)

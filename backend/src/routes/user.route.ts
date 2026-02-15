@@ -14,6 +14,7 @@ import {
   followUser,
   unfollowUser,
   getUserFollowers,
+  searchUser,
 } from "../controllers/user.controller";
 import { verifyJWT } from "../middlewares/auth.middleware";
 
@@ -38,5 +39,6 @@ router
 router.route("/follow/:username").post(verifyJWT, followUser);
 router.route("/unfollow/:username").post(verifyJWT, unfollowUser);
 router.route("/get-followers").get(verifyJWT, getUserFollowers);
+router.route("/search").get(verifyJWT, searchUser);
 
 export default router;

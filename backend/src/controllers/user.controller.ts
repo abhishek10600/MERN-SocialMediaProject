@@ -759,3 +759,49 @@ export const getUserFollowers = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const searchUser = async (req: Request, res: Response) => {
+  try {
+    const { query } = req.query;
+
+    if (!query || typeof query !== "string") {
+      throw new ApiError(400, "search query is required");
+    }
+
+    const currentUserId = req.user?._id;
+
+    const users = await User.find({
+      $and: [
+        {
+          $or: [
+            { username: { $regex: query, $options: "i" } },
+            { bio: { $regex: query, $options: "i" } },
+          ],
+        },
+        { _id: { $ne: currentUserId } },
+      ],
+    })
+      .select("username bio profileImage")
+      .limit(10);
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, users, "users fetched successfully"));
+  } catch (error: unknown) {
+    console.error("Error: ", error);
+
+    if (error instanceof ApiError) {
+      return res.status(error.statusCode).json({
+        success: false,
+        message: error.message,
+        errors: error.errors,
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      errors: [],
+    });
+  }
+};
