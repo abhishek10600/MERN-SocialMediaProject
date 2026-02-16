@@ -6,6 +6,7 @@ dotenv.config({
 });
 import http from "http";
 import { Server } from "socket.io";
+import { connectRedis } from "./config/redis";
 
 const port = process.env.PORT || 4001;
 
@@ -44,7 +45,8 @@ io.on("connection", (socket) => {
 });
 
 connectDB()
-  .then(() => {
+  .then(async () => {
+    await connectRedis();
     server.listen(port, () => {
       console.log(`Server running on port ${port}`);
     });

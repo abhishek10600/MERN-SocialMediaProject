@@ -6,12 +6,14 @@ import { Post } from "../models/post.model";
 import { ApiResponse } from "../utils/ApiResponse";
 import sanitizeHtml from "sanitize-html";
 import mongoose from "mongoose";
+import { io } from "../index";
+import { redisClient } from "../config/redis";
 
 export const createPost = async (req: Request, res: Response) => {
   try {
     let imageLocalPath;
     let image;
-    let post;
+    let createdPost;
     if (req.file?.path) {
       imageLocalPath = req.file.path;
       image = await uploadToCloudinary(imageLocalPath);
@@ -41,21 +43,42 @@ export const createPost = async (req: Request, res: Response) => {
     }
 
     if (image === undefined) {
-      post = await Post.create({
+      createdPost = await Post.create({
         content: cleanContent,
         owner: userId,
       });
     } else {
-      post = await Post.create({
+      createdPost = await Post.create({
         content: cleanContent,
         image: image.url,
         owner: userId,
       });
     }
 
+    const populatedPost = await Post.findById(createdPost._id)
+      .populate("owner", "username profileImage")
+      .lean();
+
+    if (!populatedPost) {
+      throw new ApiError(500, "failed to populate post");
+    }
+
+    const formattedPost = {
+      ...populatedPost,
+      likes: [],
+      likeCount: 0,
+      commentsCount: 0,
+      comments: [],
+    };
+
+    io.emit("new_post", formattedPost);
+
+    await redisClient.del("home:posts");
+    await redisClient.del(`user:posts:${user.username}`);
+
     return res
       .status(201)
-      .json(new ApiResponse(201, post, "post creted successfully"));
+      .json(new ApiResponse(201, formattedPost, "post creted successfully"));
   } catch (error: unknown) {
     console.error("Error: ", error);
 
@@ -81,6 +104,23 @@ export const getAllPostsForHome = async (req: Request, res: Response) => {
     const userId = req.user?._id;
     if (!userId) {
     }
+
+    const cacheKey = "home:posts";
+
+    const cachedData = await redisClient.get(cacheKey);
+
+    if (cachedData) {
+      return res
+        .status(200)
+        .json(
+          new ApiResponse(
+            200,
+            JSON.parse(cachedData),
+            "posts fetched from cache"
+          )
+        );
+    }
+
     const posts = await Post.aggregate([
       {
         $lookup: {
@@ -184,6 +224,10 @@ export const getAllPostsForHome = async (req: Request, res: Response) => {
 
     console.log(posts);
 
+    await redisClient.set(cacheKey, JSON.stringify(posts), {
+      EX: 60,
+    });
+
     return res
       .status(200)
       .json(new ApiResponse(200, posts, "posts fetched successfully"));
@@ -212,6 +256,22 @@ export const getUserPosts = async (req: Request, res: Response) => {
 
     if (!username) {
       throw new ApiError(404, "username not found");
+    }
+
+    const cacheKey = `user/posts:${username}`;
+
+    const cachedData = await redisClient.get(cacheKey);
+
+    if (cachedData) {
+      return res
+        .status(200)
+        .json(
+          new ApiResponse(
+            200,
+            JSON.parse(cachedData),
+            "user posts fetched from cache"
+          )
+        );
     }
 
     const posts = await Post.aggregate([
@@ -331,6 +391,10 @@ export const getUserPosts = async (req: Request, res: Response) => {
       { $sort: { createdAt: -1 } },
     ]);
 
+    await redisClient.set(cacheKey, JSON.stringify(posts), {
+      EX: 60,
+    });
+
     return res
       .status(200)
       .json(new ApiResponse(200, posts, "user posts fetched successfully"));
@@ -438,6 +502,9 @@ export const updatePostContent = async (req: Request, res: Response) => {
     post.content = content;
     post.save({ validateBeforeSave: false });
 
+    await redisClient.del("home:posts");
+    await redisClient.del(`user:posts:${req.user?.username}`);
+
     return res
       .status(200)
       .json(new ApiResponse(200, post, "post updated successfully"));
@@ -481,6 +548,9 @@ export const deletePost = async (req: Request, res: Response) => {
     if (!deletedPost) {
       throw new ApiError(401, "you are not authorized to perform this action");
     }
+
+    await redisClient.del("home:posts");
+    await redisClient.del(`user:posts:${req.user?.username}`);
 
     return res
       .status(203)
