@@ -82,7 +82,7 @@ const App = () => {
           }
         />
         <Route
-          path="profile/testuser2/post/edit/:postId"
+          path="profile/:username/post/edit/:postId"
           element={
             <ProtectedRoute>
               <EditPostPage />

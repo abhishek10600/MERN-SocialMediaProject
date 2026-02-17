@@ -1,8 +1,11 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import { rateLimiter } from "./middlewares/rateLimitter.middleware";
 
 const app = express();
+
+app.set("trust proxy", 1); // required behind proxy
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -13,6 +16,14 @@ app.use(
   })
 );
 app.use(cookieParser());
+
+app.use(
+  rateLimiter({
+    windowMs: 15 * 60 * 1000,
+    max: 500,
+    prefix: "global",
+  })
+);
 
 // routes
 import testRoute from "./routes/testRoute";

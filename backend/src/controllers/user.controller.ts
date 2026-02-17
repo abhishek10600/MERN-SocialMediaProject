@@ -148,7 +148,7 @@ export const loginUser = async (req: Request, res: Response) => {
     const refreshToken = user.generateRefreshToken();
 
     user.refreshToken = refreshToken;
-    user.save({ validateBeforeSave: false });
+    await user.save({ validateBeforeSave: false });
 
     const loggedInUser = await User.findById(user._id).select(
       "-password -refreshToken"
@@ -299,7 +299,7 @@ export const refreshAccessToken = async (req: Request, res: Response) => {
     const newAccessToken = user.generateAccessToken();
 
     user.refreshToken = newRefreshToken;
-    user.save({ validateBeforeSave: false });
+    await user.save({ validateBeforeSave: false });
 
     const cookieOptions = {
       httpOnly: true,
@@ -364,7 +364,7 @@ export const changeCurrentPassword = async (req: Request, res: Response) => {
     }
 
     user.password = newPassword;
-    user.save({ validateBeforeSave: false });
+    await user.save({ validateBeforeSave: false });
 
     return res
       .status(200)
@@ -402,7 +402,7 @@ export const addBio = async (req: Request, res: Response) => {
       throw new ApiError(401, "user not found");
     }
     user.bio = bio.trim();
-    user.save({ validateBeforeSave: false });
+    await user.save({ validateBeforeSave: false });
 
     return res
       .status(201)
@@ -487,7 +487,7 @@ export const updateProfileImage = async (req: Request, res: Response) => {
     if (!user.profileImage) {
       const profileImage = await uploadToCloudinary(profileImagePath);
       user.profileImage = profileImage?.url;
-      user.save({ validateBeforeSave: false });
+      await user.save({ validateBeforeSave: false });
       return res
         .status(200)
         .json(new ApiResponse(200, null, "profile image added successfully"));
@@ -496,7 +496,7 @@ export const updateProfileImage = async (req: Request, res: Response) => {
       await removeFromCloudinary(oldProfileImageUrl);
       const newProfileImage = await uploadToCloudinary(profileImagePath);
       user.profileImage = newProfileImage?.url;
-      user.save({ validateBeforeSave: false });
+      await user.save({ validateBeforeSave: false });
       return res
         .status(201)
         .json(new ApiResponse(200, null, "profile image updated successfully"));

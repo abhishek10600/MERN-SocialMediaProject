@@ -258,7 +258,7 @@ export const getUserPosts = async (req: Request, res: Response) => {
       throw new ApiError(404, "username not found");
     }
 
-    const cacheKey = `user/posts:${username}`;
+    const cacheKey = `user:posts:${username}`;
 
     const cachedData = await redisClient.get(cacheKey);
 

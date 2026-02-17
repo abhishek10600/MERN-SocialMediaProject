@@ -5,10 +5,20 @@ import {
   getCommentsByPostId,
   deleteComment,
 } from "../controllers/comment.controller";
+import { rateLimiter } from "../middlewares/rateLimitter.middleware";
 
 const router = express.Router();
 
-router.route("/create-comment/:postId").post(verifyJWT, createComment);
+const commentLimiter = rateLimiter({
+  windowMs: 60 * 1000,
+  max: 10,
+  prefix: "comment",
+  perUser: true,
+});
+
+router
+  .route("/create-comment/:postId")
+  .post(verifyJWT, commentLimiter, createComment);
 router.route("/all/:postId").get(verifyJWT, getCommentsByPostId);
 router
   .route("/delete-comment/post/:postId/comment/:commentId")

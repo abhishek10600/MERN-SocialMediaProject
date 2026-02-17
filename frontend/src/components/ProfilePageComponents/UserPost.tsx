@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { UserPostType } from "../../types/userPost";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import {
   Heart,
   MessageCircle,

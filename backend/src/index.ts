@@ -44,13 +44,19 @@ io.on("connection", (socket) => {
   });
 });
 
-connectDB()
-  .then(async () => {
+const startServer = async () => {
+  try {
+    await connectDB();
+
     await connectRedis();
+
     server.listen(port, () => {
       console.log(`Server running on port ${port}`);
     });
-  })
-  .catch((error) => {
-    console.error("MongoDB connection failed: ", error);
-  });
+  } catch (error) {
+    console.error("Startup error:", error);
+    process.exit(1);
+  }
+};
+
+startServer();
