@@ -20,7 +20,14 @@ export interface FeedComment {
 export interface FeedPostType {
   _id: string;
   content: string;
-  image?: string;
+  image?: {
+    url?: string;
+    public_id?: string;
+  };
+  video?: {
+    url?: string;
+    public_id?: string;
+  };
   owner: FeedOwner;
   comments: FeedComment[];
   likes: string[];

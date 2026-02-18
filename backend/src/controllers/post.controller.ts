@@ -1,6 +1,10 @@
 import { Request, Response } from "express";
 import { ApiError } from "../utils/ApiError";
-import { uploadToCloudinary } from "../utils/cloudinary";
+import {
+  uploadToCloudinary,
+  uploadVideoToCloudinary,
+  removeFromCloudinary,
+} from "../utils/cloudinary";
 import { User } from "../models/user.model";
 import { Post } from "../models/post.model";
 import { ApiResponse } from "../utils/ApiResponse";
@@ -11,12 +15,46 @@ import { redisClient } from "../config/redis";
 
 export const createPost = async (req: Request, res: Response) => {
   try {
-    let imageLocalPath;
+    // let imageLocalPath;
+    // let createdPost;
+    // if (req.file?.path) {
+    //   imageLocalPath = req.file.path;
+    //   image = await uploadToCloudinary(imageLocalPath);
+    // }
+
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+
+    if (files["image"] && files["video"]) {
+      throw new ApiError(
+        400,
+        "You can upload either an image or a video, not both"
+      );
+    }
+
     let image;
-    let createdPost;
-    if (req.file?.path) {
-      imageLocalPath = req.file.path;
-      image = await uploadToCloudinary(imageLocalPath);
+    let videoHlsUrl: string | undefined;
+    let videoUrl: string | undefined;
+
+    if (files["image"]?.[0]?.path) {
+      image = await uploadToCloudinary(files["image"][0].path);
+    }
+
+    let videoResult;
+
+    if (files["video"]?.[0]?.path) {
+      videoResult = await uploadVideoToCloudinary(files["video"][0].path);
+      console.log(
+        "Full Cloudinary video result:",
+        JSON.stringify(videoResult, null, 2)
+      );
+      console.log("Eager array:", videoResult?.eager);
+      if (!videoResult) {
+        throw new ApiError(500, "Failed to upload video to cloudinary");
+      }
+      // videoHlsUrl =
+      //   videoResult.eager?.[0]?.secure_url ?? videoResult.secure_url;
+
+      videoUrl = videoResult.playback_url ?? videoResult.secure_url;
     }
 
     const { content } = req.body;
@@ -42,18 +80,35 @@ export const createPost = async (req: Request, res: Response) => {
       throw new ApiError(404, "user not found");
     }
 
-    if (image === undefined) {
-      createdPost = await Post.create({
-        content: cleanContent,
-        owner: userId,
-      });
-    } else {
-      createdPost = await Post.create({
-        content: cleanContent,
-        image: image.url,
-        owner: userId,
-      });
-    }
+    const createdPost = await Post.create({
+      content: cleanContent,
+      owner: userId,
+      ...(image && {
+        image: {
+          url: image.secure_url,
+          public_id: image.public_id,
+        },
+      }),
+      ...(videoUrl && {
+        video: {
+          url: videoUrl,
+          public_id: videoResult?.public_id,
+        },
+      }),
+    });
+
+    // if (image === undefined) {
+    //   createdPost = await Post.create({
+    //     content: cleanContent,
+    //     owner: userId,
+    //   });
+    // } else {
+    //   createdPost = await Post.create({
+    //     content: cleanContent,
+    //     image: image.url,
+    //     owner: userId,
+    //   });
+    // }
 
     const populatedPost = await Post.findById(createdPost._id)
       .populate("owner", "username profileImage")
@@ -98,7 +153,6 @@ export const createPost = async (req: Request, res: Response) => {
   }
 };
 
-// here I need to implement the mongodb aggregation pipeline to get the comments
 export const getAllPostsForHome = async (req: Request, res: Response) => {
   try {
     const userId = req.user?._id;
@@ -275,7 +329,7 @@ export const getUserPosts = async (req: Request, res: Response) => {
     }
 
     const posts = await Post.aggregate([
-      // 1️⃣ Join owner
+      //Join owner
       {
         $lookup: {
           from: "users",
@@ -286,14 +340,14 @@ export const getUserPosts = async (req: Request, res: Response) => {
       },
       { $unwind: "$owner" },
 
-      // 2️⃣ Match by username
+      //Match by username
       {
         $match: {
           "owner.username": username,
         },
       },
 
-      // 3️⃣ Join comments
+      //Join comments
       {
         $lookup: {
           from: "comments",
@@ -303,7 +357,7 @@ export const getUserPosts = async (req: Request, res: Response) => {
         },
       },
 
-      // 4️⃣ Join comment users
+      //Join comment users
       {
         $lookup: {
           from: "users",
@@ -313,7 +367,7 @@ export const getUserPosts = async (req: Request, res: Response) => {
         },
       },
 
-      // 5️⃣ Shape comments
+      // Shape comments
       {
         $addFields: {
           comments: {
@@ -355,7 +409,7 @@ export const getUserPosts = async (req: Request, res: Response) => {
         },
       },
 
-      // 🔥 FIX: ensure likes always exists + counts
+      // ensure likes always exists + counts
       {
         $addFields: {
           likes: { $ifNull: ["$likes", []] },
@@ -368,11 +422,12 @@ export const getUserPosts = async (req: Request, res: Response) => {
         },
       },
 
-      // 6️⃣ Final projection
+      // Final projection
       {
         $project: {
           content: 1,
           image: 1,
+          video: 1,
           createdAt: 1,
           commentCount: 1,
           likeCount: 1,
@@ -383,8 +438,6 @@ export const getUserPosts = async (req: Request, res: Response) => {
             username: "$owner.username",
             profileImage: "$owner.profileImage",
           },
-          // ❌ hide raw likes array (optional)
-          // likes: 0,
         },
       },
 
@@ -538,6 +591,24 @@ export const deletePost = async (req: Request, res: Response) => {
 
     if (!userId) {
       throw new ApiError(404, "user id not found");
+    }
+
+    const post = await Post.findById(postId);
+    if (!post) {
+      throw new ApiError(404, "Post not found");
+    }
+
+    console.log({ postToBeDeleted: post });
+
+    console.log(post.video);
+    console.log(post.image);
+
+    if (post.video?.public_id) {
+      await removeFromCloudinary(post.video.public_id, "video");
+    }
+
+    if (post.image?.public_id) {
+      await removeFromCloudinary(post.image.public_id, "image");
     }
 
     const deletedPost = await Post.findByIdAndDelete({

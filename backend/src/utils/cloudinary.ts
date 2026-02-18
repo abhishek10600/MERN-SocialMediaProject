@@ -24,15 +24,28 @@ export const uploadToCloudinary = async (localFilePath: string) => {
   }
 };
 
-export const removeFromCloudinary = async (imageUrl: string) => {
+export const uploadVideoToCloudinary = async (localFilePath: string) => {
   try {
-    const urlArray = imageUrl.split("/");
-    const imageNameWithExtension = urlArray[urlArray.length - 1];
-    const imageNameArray = imageNameWithExtension.split(".");
-    const imageName = imageNameArray[0];
-
-    await cloudinary.uploader.destroy(imageName);
+    const response = await cloudinary.uploader.upload(localFilePath, {
+      resource_type: "video",
+    });
+    fs.unlinkSync(localFilePath);
+    return response;
   } catch (error) {
-    console.log("Cloudinary Error: ", error);
+    console.log("Cloudinary Video Upload Error: ", error);
+    fs.unlinkSync(localFilePath);
+  }
+};
+
+export const removeFromCloudinary = async (
+  publicId: string,
+  resourceType: "image" | "video"
+) => {
+  try {
+    await cloudinary.uploader.destroy(publicId, {
+      resource_type: resourceType,
+    });
+  } catch (error) {
+    console.log("Cloudinary Delete Error:", error);
   }
 };

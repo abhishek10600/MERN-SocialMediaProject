@@ -27,9 +27,15 @@ export interface AccessTokenPayload extends JwtPayload {
   email: string;
 }
 
+export interface IMedia {
+  url: string;
+  public_id: string;
+}
+
 export interface IPost {
   content: string;
-  image?: string;
+  image?: IMedia;
+  video?: IMedia;
   owner: mongoose.Types.ObjectId;
   comments: mongoose.Types.ObjectId[];
   likes: mongoose.Types.ObjectId[];

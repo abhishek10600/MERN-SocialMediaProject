@@ -13,6 +13,7 @@ import {
 } from "../../api/comment.api";
 import type { CommentType } from "../../types/comment";
 import Spinner from "../General/Spinner";
+import HlsVideoPlayer from "../General/HlsVideoPlayer";
 
 interface FeedPostProps {
   post: FeedPostType;
@@ -149,7 +150,13 @@ const FeedPost = ({ post }: FeedPostProps) => {
           {new Date(post.createdAt).toLocaleString()}
         </span>
 
-        {post.image && <img src={post.image} className="rounded-xl" />}
+        {/* Image */}
+        {post.image && (
+          <img src={post.image.url} alt="post" className="rounded-xl" />
+        )}
+
+        {/* Video — HLS player for Cloudinary .m3u8 streams */}
+        {post.video?.url && <HlsVideoPlayer src={post.video?.url} />}
 
         {/* Post content with read more */}
         <div className="relative">
@@ -218,6 +225,7 @@ const FeedPost = ({ post }: FeedPostProps) => {
                           "/default-avatar.png"
                         }
                         className="w-8 h-8 rounded-full object-cover"
+                        alt={comment.commentedBy.username}
                       />
                       <div>
                         <p className="text-sm text-white font-bold">

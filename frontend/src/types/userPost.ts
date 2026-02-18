@@ -20,7 +20,14 @@ export interface PostComment {
 export interface UserPostType {
   _id: string;
   content: string;
-  image?: string;
+  image?: {
+    url?: string;
+    public_id?: string;
+  };
+  video?: {
+    url?: string;
+    public_id?: string;
+  };
   owner: PostOwner;
   comments: PostComment[];
   likes: string[];
