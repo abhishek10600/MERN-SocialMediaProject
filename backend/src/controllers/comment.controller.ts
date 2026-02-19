@@ -4,6 +4,7 @@ import { Post } from "../models/post.model";
 import { Comment } from "../models/comment.model";
 import { ApiResponse } from "../utils/ApiResponse";
 import { io } from "../index";
+import { invalidatePostCaches } from "../utils/cache";
 
 export const createComment = async (req: Request, res: Response) => {
   try {
@@ -42,6 +43,12 @@ export const createComment = async (req: Request, res: Response) => {
     }>("commentedBy", "username profileImage");
 
     console.log({ populatedComment });
+
+    const populatedPost = await post.populate<{
+      owner: { username: string };
+    }>("owner", "username");
+
+    await invalidatePostCaches(populatedPost.owner.username);
 
     if (post.owner.toString() !== userId.toString()) {
       io.to(post.owner.toString()).emit("postCommented", {
@@ -133,6 +140,10 @@ export const deleteComment = async (req: Request, res: Response) => {
     await Post.findByIdAndUpdate(postId, {
       $pull: { comments: commentId },
     });
+
+    const populatedPost = await post.populate("owner", "username");
+
+    await invalidatePostCaches((populatedPost.owner as any).username);
 
     return res
       .status(200)

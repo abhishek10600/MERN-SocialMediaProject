@@ -4,6 +4,7 @@ import { Post } from "../models/post.model";
 import { ApiResponse } from "../utils/ApiResponse";
 import mongoose from "mongoose";
 import { io } from "../index";
+import { invalidatePostCaches } from "../utils/cache";
 
 export const togglePostLike = async (req: Request, res: Response) => {
   try {
@@ -30,6 +31,9 @@ export const togglePostLike = async (req: Request, res: Response) => {
       await Post.findByIdAndUpdate(postId, {
         $pull: { likes: userId },
       });
+
+      await invalidatePostCaches((post.owner as any).username);
+
       return res
         .status(201)
         .json(new ApiResponse(201, null, `you unliked the post`));
@@ -37,6 +41,8 @@ export const togglePostLike = async (req: Request, res: Response) => {
       await Post.findByIdAndUpdate(postId, {
         $addToSet: { likes: userId },
       });
+
+      await invalidatePostCaches((post.owner as any).username);
 
       if (post.owner.toString() !== userId.toString()) {
         io.to(post.owner.toString()).emit("postLiked", {
