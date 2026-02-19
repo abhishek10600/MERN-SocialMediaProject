@@ -5,6 +5,7 @@ import { ApiResponse } from "../utils/ApiResponse";
 import mongoose from "mongoose";
 import { io } from "../index";
 import { invalidatePostCaches } from "../utils/cache";
+import { redisClient } from "../config/redis";
 
 export const togglePostLike = async (req: Request, res: Response) => {
   try {
@@ -19,11 +20,18 @@ export const togglePostLike = async (req: Request, res: Response) => {
       throw new ApiError(404, "post id not found");
     }
 
-    const post = await Post.findById(postId);
+    const post = await Post.findById(postId).populate<{
+      owner: {
+        _id: mongoose.Types.ObjectId;
+        username: string;
+      };
+    }>("owner", "username");
 
     if (!post) {
       throw new ApiError(404, "post not found");
     }
+
+    const ownerId = post.owner._id.toString();
 
     const isLiked = post.likes.includes(userId);
 
@@ -32,7 +40,8 @@ export const togglePostLike = async (req: Request, res: Response) => {
         $pull: { likes: userId },
       });
 
-      await invalidatePostCaches((post.owner as any).username);
+      await redisClient.del("home:posts");
+      await redisClient.del(`user:posts:${(post.owner as any).username}`);
 
       return res
         .status(201)
@@ -42,14 +51,17 @@ export const togglePostLike = async (req: Request, res: Response) => {
         $addToSet: { likes: userId },
       });
 
-      await invalidatePostCaches((post.owner as any).username);
+      await redisClient.del("home:posts");
+      await redisClient.del(`user:posts:${(post.owner as any).username}`);
 
-      if (post.owner.toString() !== userId.toString()) {
-        io.to(post.owner.toString()).emit("postLiked", {
+      if (ownerId !== userId.toString()) {
+        io.to(`user:${ownerId}`).emit("postLiked", {
           postId,
           likedBy: userId,
           message: "Someone liked your post",
         });
+
+        console.log("Emitted like notification to:", ownerId);
       }
       return res
         .status(201)

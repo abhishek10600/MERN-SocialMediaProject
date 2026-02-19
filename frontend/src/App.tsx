@@ -50,7 +50,8 @@ const App = () => {
     });
 
     return () => {
-      socket?.disconnect();
+      socket.off("postLiked");
+      socket.off("postCommented");
     };
   }, [user?._id]);
 

@@ -254,7 +254,7 @@ export const getAllPostsForHome = async (req: Request, res: Response) => {
         },
       },
 
-      // 🔥 ONLY NEW PART (LIKES)
+      //ONLY NEW PART (LIKES)
       {
         $addFields: {
           commentsCount: { $size: "$comments" },
@@ -276,7 +276,7 @@ export const getAllPostsForHome = async (req: Request, res: Response) => {
       },
     ]);
 
-    console.log(posts);
+    // console.log(posts);
 
     await redisClient.set(cacheKey, JSON.stringify(posts), {
       EX: 60,

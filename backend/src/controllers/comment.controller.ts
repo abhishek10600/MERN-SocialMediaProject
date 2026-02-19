@@ -5,6 +5,8 @@ import { Comment } from "../models/comment.model";
 import { ApiResponse } from "../utils/ApiResponse";
 import { io } from "../index";
 import { invalidatePostCaches } from "../utils/cache";
+import { redisClient } from "../config/redis";
+import mongoose from "mongoose";
 
 export const createComment = async (req: Request, res: Response) => {
   try {
@@ -22,7 +24,13 @@ export const createComment = async (req: Request, res: Response) => {
       throw new ApiError(400, "comment is required");
     }
 
-    const post = await Post.findById(postId);
+    const post = await Post.findById(postId).populate<{
+      owner: {
+        _id: mongoose.Types.ObjectId;
+        username: string;
+      };
+    }>("owner", "username");
+
     if (!post) throw new ApiError(404, "post not found");
 
     const createdComment = await Comment.create({
@@ -48,10 +56,16 @@ export const createComment = async (req: Request, res: Response) => {
       owner: { username: string };
     }>("owner", "username");
 
-    await invalidatePostCaches(populatedPost.owner.username);
+    // await invalidatePostCaches(populatedPost.owner.username);
+    await redisClient.del("home:posts");
+    await redisClient.del(
+      `user:posts:${(populatedPost.owner as any).username}`
+    );
 
-    if (post.owner.toString() !== userId.toString()) {
-      io.to(post.owner.toString()).emit("postCommented", {
+    const ownerId = post.owner._id.toString();
+
+    if (ownerId !== userId.toString()) {
+      io.to(`user:${ownerId}`).emit("postCommented", {
         postId,
         commentedBy: {
           _id: userId,
@@ -59,6 +73,8 @@ export const createComment = async (req: Request, res: Response) => {
         },
         message: `${populatedComment.commentedBy?.username} commented on your post`,
       });
+
+      console.log("Emitted comment notification to:", ownerId);
     }
 
     return res
@@ -122,13 +138,25 @@ export const deleteComment = async (req: Request, res: Response) => {
 
     if (!userId) throw new ApiError(401, "Unauthorized");
 
-    const post = await Post.findById(postId);
-    if (!post) throw new ApiError(404, "post not found");
+    const post = await Post.findById(postId).populate<{
+      owner: {
+        _id: mongoose.Types.ObjectId;
+        username: string;
+      };
+    }>("owner", "username");
+
+    if (!post) {
+      throw new ApiError(404, "post not found");
+    }
 
     const comment = await Comment.findById(commentId);
-    if (!comment) throw new ApiError(404, "comment not found");
 
-    const isPostOwner = post.owner.equals(userId);
+    if (!comment) {
+      throw new ApiError(404, "comment not found");
+    }
+
+    const isPostOwner = post.owner._id.toString() === userId.toString();
+
     const isCommentOwner = comment.commentedBy.equals(userId);
 
     if (!isPostOwner && !isCommentOwner) {
@@ -143,7 +171,10 @@ export const deleteComment = async (req: Request, res: Response) => {
 
     const populatedPost = await post.populate("owner", "username");
 
-    await invalidatePostCaches((populatedPost.owner as any).username);
+    await redisClient.del("home:posts");
+    await redisClient.del(
+      `user:posts:${(populatedPost.owner as any).username}`
+    );
 
     return res
       .status(200)

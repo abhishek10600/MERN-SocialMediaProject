@@ -25,11 +25,12 @@ io.on("connection", (socket) => {
   const userId = socket.handshake.query.userId as string;
 
   if (userId) {
-    socket.join(userId);
-    console.log("User joined personal room: ", userId);
+    socket.join(`user:${userId}`);
+    console.log("User joined personal room:", `user:${userId}`);
+    console.log("Rooms:", Array.from(socket.rooms));
   }
 
-  socket.on("join_conversation", (conversationId) => {
+  socket.on("join_conversation", (conversationId: string) => {
     socket.join(conversationId);
     console.log(`User joined conversation: ${conversationId}`);
   });
@@ -47,7 +48,6 @@ io.on("connection", (socket) => {
 const startServer = async () => {
   try {
     await connectDB();
-
     await connectRedis();
 
     server.listen(port, () => {
