@@ -15,6 +15,7 @@ import UploadPostPage from "./pages/UploadPostPage";
 import EditPostPage from "./pages/EditPostPage";
 import ChatPage from "./pages/ChatPage";
 import { connectSocket } from "./socket";
+import PostDetailPage from "./pages/PostDetailPage";
 
 const App = () => {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -63,6 +64,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <FeedPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/:postId"
+          element={
+            <ProtectedRoute>
+              <PostDetailPage />
             </ProtectedRoute>
           }
         />

@@ -483,21 +483,110 @@ export const getUserPostById = async (req: Request, res: Response) => {
       throw new ApiError(404, "post id not found");
     }
 
-    const post = await Post.find({
+    // const post = await Post.find({
+    //   _id: postId,
+    //   owner: userId,
+    // })
+    //   .populate("owner", "username profileImage")
+    //   .populate("comments")
+    //   .populate("likes", "username profileImage");
+
+    const post = await Post.findOne({
       _id: postId,
       owner: userId,
     })
       .populate("owner", "username profileImage")
-      .populate("comments")
-      .populate("likes", "username profileImage");
+      .populate({
+        path: "comments",
+        populate: {
+          path: "commentedBy",
+          select: "username profileImage",
+        },
+      })
+      .populate("likes", "username profileImage")
+      .lean();
 
     if (!post) {
       throw new ApiError(404, "Post not found or you are not the owner");
     }
+
+    const formattedPost = {
+      ...post,
+      likeCount: post.likes?.length || 0,
+      commentCount: post.comments?.length || 0,
+    };
+
     return res.status(200).json({
       success: true,
       message: "Post fetched successfully",
-      data: post,
+      data: formattedPost,
+    });
+  } catch (error: unknown) {
+    console.error("Error: ", error);
+
+    if (error instanceof ApiError) {
+      return res.status(error.statusCode).json({
+        success: false,
+        message: error.message,
+        errors: error.errors,
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      errors: [],
+    });
+  }
+};
+
+export const getPostById = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?._id;
+    const { postId } = req.params;
+
+    if (!userId) {
+      throw new ApiError(404, "user id not found");
+    }
+
+    if (!postId) {
+      throw new ApiError(404, "post id not found");
+    }
+
+    // const post = await Post.find({
+    //   _id: postId,
+    //   owner: userId,
+    // })
+    //   .populate("owner", "username profileImage")
+    //   .populate("comments")
+    //   .populate("likes", "username profileImage");
+
+    const post = await Post.findById(postId)
+      .populate("owner", "username profileImage")
+      .populate({
+        path: "comments",
+        populate: {
+          path: "commentedBy",
+          select: "username profileImage",
+        },
+      })
+      .populate("likes", "username profileImage")
+      .lean();
+
+    if (!post) {
+      throw new ApiError(404, "Post not found or you are not the owner");
+    }
+
+    const formattedPost = {
+      ...post,
+      likeCount: post.likes?.length || 0,
+      commentCount: post.comments?.length || 0,
+    };
+
+    return res.status(200).json({
+      success: true,
+      message: "Post fetched successfully",
+      data: formattedPost,
     });
   } catch (error: unknown) {
     console.error("Error: ", error);
@@ -626,6 +715,114 @@ export const deletePost = async (req: Request, res: Response) => {
     return res
       .status(203)
       .json(new ApiResponse(203, null, "post deleted successfully"));
+  } catch (error: unknown) {
+    console.error("Error: ", error);
+
+    if (error instanceof ApiError) {
+      return res.status(error.statusCode).json({
+        success: false,
+        message: error.message,
+        errors: error.errors,
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      errors: [],
+    });
+  }
+};
+
+export const searchPosts = async (req: Request, res: Response) => {
+  try {
+    const { query } = req.query;
+
+    if (!query || typeof query !== "string") {
+      throw new ApiError(400, "Search query is required");
+    }
+
+    const searchText = query.trim();
+
+    const posts = await Post.aggregate([
+      {
+        $match: {
+          $text: {
+            $search: searchText,
+          },
+        },
+      },
+      {
+        $addFields: {
+          score: {
+            $meta: "textScore",
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "owner",
+          foreignField: "_id",
+          as: "owner",
+        },
+      },
+      {
+        $unwind: "$owner",
+      },
+      {
+        $lookup: {
+          from: "comments",
+          localField: "comments",
+          foreignField: "_id",
+          as: "comments",
+        },
+      },
+
+      // counts
+      {
+        $addFields: {
+          likeCount: { $size: { $ifNull: ["$likes", []] } },
+          commentCount: { $size: { $ifNull: ["$comments", []] } },
+        },
+      },
+
+      // remove sensitive data
+      {
+        $project: {
+          score: 1,
+          content: 1,
+          image: 1,
+          video: 1,
+          createdAt: 1,
+          likeCount: 1,
+          commentCount: 1,
+          likes: 1,
+          comments: 1,
+          owner: {
+            _id: "$owner._id",
+            username: "$owner.username",
+            profileImage: "$owner.profileImage",
+          },
+        },
+      },
+
+      // best matches first
+      {
+        $sort: {
+          score: -1,
+          createdAt: -1,
+        },
+      },
+
+      {
+        $limit: 20,
+      },
+    ]);
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, posts, "posts fetched successfully"));
   } catch (error: unknown) {
     console.error("Error: ", error);
 

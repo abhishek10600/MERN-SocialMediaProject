@@ -152,14 +152,16 @@ const FeedPost = ({ post }: FeedPostProps) => {
 
         {/* Image */}
         {post.image && (
-          <img src={post.image.url} alt="post" className="rounded-xl" />
+          <Link to={`/${post._id}`}>
+            <img src={post.image.url} alt="post" className="rounded-xl" />
+          </Link>
         )}
 
         {/* Video — HLS player for Cloudinary .m3u8 streams */}
         {post.video?.url && <HlsVideoPlayer src={post.video?.url} />}
 
         {/* Post content with read more */}
-        <div className="relative">
+        <Link to={`/${post._id}`} className="relative">
           <div
             ref={contentRef}
             className={`prose prose-invert max-w-none text-white transition-all duration-300 ${
@@ -175,7 +177,7 @@ const FeedPost = ({ post }: FeedPostProps) => {
               {expanded ? "Show less" : "More"}
             </button>
           )}
-        </div>
+        </Link>
 
         {/* Actions */}
         <div className="flex items-center gap-4">

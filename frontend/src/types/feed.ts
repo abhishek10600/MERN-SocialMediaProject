@@ -36,3 +36,28 @@ export interface FeedPostType {
   commentsCount: number;
   likeCount: number;
 }
+
+export interface PostDetailLikeUser {
+  _id: string;
+  username: string;
+  profileImage?: string;
+}
+export interface PostDetailType {
+  _id: string;
+  content: string;
+  image?: {
+    url?: string;
+    public_id?: string;
+  };
+  video?: {
+    url?: string;
+    public_id?: string;
+  };
+  owner: FeedOwner;
+  comments: FeedComment[];
+  likes: PostDetailLikeUser[];
+  createdAt: string;
+  updatedAt: string;
+  commentCount: number;
+  likeCount: number;
+}

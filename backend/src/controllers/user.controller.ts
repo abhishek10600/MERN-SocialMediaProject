@@ -493,7 +493,7 @@ export const updateProfileImage = async (req: Request, res: Response) => {
         .json(new ApiResponse(200, null, "profile image added successfully"));
     } else {
       const oldProfileImageUrl = user.profileImage;
-      await removeFromCloudinary(oldProfileImageUrl);
+      await removeFromCloudinary(oldProfileImageUrl, "image");
       const newProfileImage = await uploadToCloudinary(profileImagePath);
       user.profileImage = newProfileImage?.url;
       await user.save({ validateBeforeSave: false });

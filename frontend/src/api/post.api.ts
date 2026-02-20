@@ -27,3 +27,13 @@ export const updatePostContent = async (postId: string, content: string) => {
 
   return response.data.data;
 };
+
+export const getPostById = async (postId: string) => {
+  const response = await api.get(`/posts/${postId}`);
+  return response.data.data;
+};
+
+export const searchPosts = async (query: string) => {
+  const response = await api.get(`posts/search?query=${query}`);
+  return response.data.data;
+};

@@ -8,6 +8,8 @@ import {
   getUserPostById,
   updatePostContent,
   deletePost,
+  getPostById,
+  searchPosts,
 } from "../controllers/post.controller";
 
 const router = express.Router();
@@ -23,7 +25,9 @@ router.route("/create-post").post(
 
 router.route("/all-posts").get(verifyJWT, getAllPostsForHome);
 router.route("/user-posts/:username").get(verifyJWT, getUserPosts);
-router.route("/:postId").get(verifyJWT, getUserPostById);
+// router.route("/:postId").get(verifyJWT, getUserPostById);
+router.route("/search").get(verifyJWT, searchPosts);
+router.route("/:postId").get(verifyJWT, getPostById);
 router
   .route("/update-post-content/:postId")
   .patch(verifyJWT, updatePostContent);

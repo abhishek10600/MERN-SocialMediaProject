@@ -3,13 +3,13 @@ import type { RootState } from "../../store/store";
 import { Search, User2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
-import type { SearchUser } from "../../types/seachUser";
-import { searchUsers } from "../../api/feed.api";
+import { searchPosts } from "../../api/post.api";
+import type { SearchPost } from "../../types/searchPost";
 
 const Navbar = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<SearchUser[]>([]);
+  const [results, setResults] = useState<SearchPost[]>([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -24,7 +24,7 @@ const Navbar = () => {
     const timer = setTimeout(async () => {
       try {
         setLoading(true);
-        const response = await searchUsers(query);
+        const response = await searchPosts(query);
         setResults(response);
         setOpen(true);
       } catch (error) {
@@ -49,27 +49,6 @@ const Navbar = () => {
   }, []);
 
   return (
-    // <nav className="min-h-[10vh] flex justify-between items-center px-4 py-4 md:px-20 md:py-4 border-b border-[#230737] shadow-[#230737] sticky">
-    //   <Link to="/" className="text-[#9929EA] font-bold text-xl md:text-3xl">
-    //     ConnectHub
-    //   </Link>
-    //   <div className="flex justify-center items-center gap-2">
-    //     {user?.profileImage ? (
-    //       <Link to={`/profile/${user?.username}`}>
-    //         <img
-    //           className="w-7.5 rounded-2xl bg-cover aspect-square border-2 border-[#9929EA] object-cover"
-    //           src={user?.profileImage}
-    //         />
-    //       </Link>
-    //     ) : (
-    //       <User2 className="text-white" />
-    //     )}
-    //     <Link to={`/profile/${user?.username}`} className="text-white">
-    //       {user?.username}
-    //     </Link>
-    //   </div>
-    // </nav>
-
     <nav className="min-h-[10vh] flex justify-between items-center px-4 md:px-20 border-b border-[#230737]">
       {/* Logo */}
       <Link to="/" className="text-[#9929EA] font-bold text-xl md:text-3xl">
@@ -86,7 +65,7 @@ const Navbar = () => {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search users..."
+            placeholder="Search"
             className="bg-transparent w-full px-3 py-2 text-white outline-none"
           />
         </div>
@@ -103,30 +82,31 @@ const Navbar = () => {
             )}
 
             {!loading &&
-              results.map((u) => (
+              results.map((p) => (
                 <Link
-                  key={u._id}
-                  to={`/profile/${u.username}`}
+                  key={p._id}
+                  to={`/${p._id}`}
                   onClick={() => {
                     setOpen(false);
                     setQuery("");
                   }}
                   className="flex items-center gap-3 px-4 py-3 hover:bg-[#230737]"
                 >
-                  {u.profileImage ? (
+                  {p.owner.profileImage ? (
                     <img
-                      src={u.profileImage}
+                      src={p.owner.profileImage}
                       className="w-10 h-10 rounded-full object-cover"
                     />
                   ) : (
                     <User2 className="text-white" />
                   )}
                   <div>
-                    <p className="text-white font-medium">{u.username}</p>
-                    {u.bio && (
-                      <p className="text-gray-400 text-sm truncate w-56">
-                        {u.bio}
-                      </p>
+                    <p className="text-white font-medium">{p.owner.username}</p>
+                    {p.content && (
+                      <p
+                        className="text-gray-400 text-sm truncate w-56"
+                        dangerouslySetInnerHTML={{ __html: p.content }}
+                      ></p>
                     )}
                   </div>
                 </Link>
