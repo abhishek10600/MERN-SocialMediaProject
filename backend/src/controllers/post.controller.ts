@@ -553,14 +553,6 @@ export const getPostById = async (req: Request, res: Response) => {
       throw new ApiError(404, "post id not found");
     }
 
-    // const post = await Post.find({
-    //   _id: postId,
-    //   owner: userId,
-    // })
-    //   .populate("owner", "username profileImage")
-    //   .populate("comments")
-    //   .populate("likes", "username profileImage");
-
     const post = await Post.findById(postId)
       .populate("owner", "username profileImage")
       .populate({

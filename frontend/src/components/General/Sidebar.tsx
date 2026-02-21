@@ -30,7 +30,8 @@ const Sidebar = () => {
   const inactiveClasses = "bg-white/20 border-white";
   const activeClasses = "bg-[#9929EA]";
   return (
-    <div className="w-65 shrink-0 h-full border-r border-white/10 text-white flex flex-col items-center justify-between py-6">
+    // <div className="w-65 shrink-0 h-full border-r border-white/10 text-white flex flex-col items-center justify-between py-6">
+    <div className="hidden lg:flex w-64 shrink-0 h-full border-r border-white/10 text-white flex-col items-center justify-between py-6">
       <div className="flex flex-col gap-4">
         <NavLink
           to={`/`}

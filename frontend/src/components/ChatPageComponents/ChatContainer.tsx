@@ -145,9 +145,11 @@ const ChatContainer = () => {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    // <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full min-h-0">
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      {/* <div className="flex-1 overflow-y-auto p-4 space-y-3"> */}
+      <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3">
         {messages.map((msg) => {
           const isMe = msg.sender._id === loggedInUser?._id;
 
@@ -218,7 +220,7 @@ const ChatContainer = () => {
       )}
 
       {/* Input */}
-      <div className="p-4 border-t border-white/10 flex gap-2 items-center">
+      <div className="p-4 border-t border-white/10 flex gap-2 items-center mb-10 md:mb-0">
         <input
           type="file"
           accept="image/*"

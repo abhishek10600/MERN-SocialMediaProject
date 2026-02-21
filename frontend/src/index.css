@@ -1,3 +1,19 @@
+/* @import "tailwindcss";
+
+html,
+body {
+  overflow: hidden;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #9929ea;
+  border-radius: 999px;
+} */
+
 @import "tailwindcss";
 
 html,

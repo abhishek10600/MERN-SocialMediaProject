@@ -10,6 +10,7 @@ import { getFeedPosts } from "../api/feed.api";
 import type { FeedPostType } from "../types/feed";
 import FeedPost from "../components/FeedPageComponents/FeedPost";
 import { getSocket } from "../socket";
+import AppLayout from "../components/Layout/AppLayout";
 
 const FeedPage = () => {
   const { loading } = useSelector((state: RootState) => state.auth);
@@ -61,25 +62,31 @@ const FeedPage = () => {
   }
 
   return (
-    <div className="h-screen overflow-hidden flex flex-col">
-      <Navbar />
+    // <div className="h-screen overflow-hidden flex flex-col">
+    //   <Navbar />
 
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar />
-        <div className="flex-1 overflow-y-auto px-4">
-          {loadingPosts ? (
-            <Spinner />
-          ) : feedPosts.length === 0 ? (
-            <p className="text-white">No posts found</p>
-          ) : (
-            feedPosts.map((feedPost) => (
-              <FeedPost key={feedPost._id} post={feedPost} />
-            ))
-          )}
-        </div>
-        <ChatBar />
-      </div>
-    </div>
+    //   <div className="flex flex-1 overflow-hidden">
+    //     <Sidebar />
+    //     <div className="flex-1 overflow-y-auto px-4">
+    //       {loadingPosts ? (
+    //         <Spinner />
+    //       ) : feedPosts.length === 0 ? (
+    //         <p className="text-white">No posts found</p>
+    //       ) : (
+    //         feedPosts.map((feedPost) => (
+    //           <FeedPost key={feedPost._id} post={feedPost} />
+    //         ))
+    //       )}
+    //     </div>
+    //     <ChatBar />
+    //   </div>
+    // </div>
+
+    <AppLayout>
+      {feedPosts.map((post) => (
+        <FeedPost key={post._id} post={post} />
+      ))}
+    </AppLayout>
   );
 };
 

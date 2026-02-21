@@ -38,7 +38,7 @@ export const getOrCreateConversation = async (req: Request, res: Response) => {
 
     if (isNew) {
       participants.forEach((participantId: any) => {
-        io.to(participantId.toString()).emit("conversation_updated");
+        io.to(`user:${participantId.toString()}`).emit("conversation_updated");
       });
     }
 
@@ -116,7 +116,7 @@ export const sendMessage = async (req: Request, res: Response) => {
     io.to(conversationId.toString()).emit("new_message", populated);
 
     conversation.participants.forEach((participantId: any) => {
-      io.to(participantId.toString()).emit("conversation_updated");
+      io.to(`user:${participantId.toString()}`).emit("conversation_updated");
     });
 
     return res
@@ -214,7 +214,7 @@ export const markSeen = async (req: Request, res: Response) => {
       { $addToSet: { seenBy: userId } }
     );
 
-    io.to(userId.toString()).emit("conversation_updated");
+    io.to(`user:${userId.toString()}`).emit("conversation_updated");
 
     return res
       .status(200)

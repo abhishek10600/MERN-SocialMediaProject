@@ -44,76 +44,131 @@ const RegisterUserForm = () => {
       setLoading(false);
     }
   };
+
+  const inputBase =
+    "w-full bg-[#15151c] border text-gray-100 px-2 py-2 rounded-xl outline-none transition-all duration-200 placeholder:text-gray-500";
+
+  const inputFocus =
+    "focus:border-[#9929EA] focus:ring-2 focus:ring-[#9929EA]/30";
+
+  const inputError = "border-red-500 focus:ring-red-500/20";
+
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="border flex flex-col gap-3 text-sm md:pb-4"
+      className="flex flex-col gap-2 text-sm"
     >
-      {/* username */}
-      <div className="flex flex-col gap-2">
-        <label className="text-[#9929EA]">Username</label>
+      {/* Username */}
+      <div>
+        <label className="block text-gray-300 mb-1 font-medium">Username</label>
+
         <input
           type="text"
           {...register("username")}
-          placeholder="create your username"
-          className="text-white p-2 border rounded-xl bg-transparent"
+          placeholder="Create your username"
+          className={`${inputBase} ${inputFocus} ${
+            errors.username ? inputError : "border-[#2a2a35]"
+          }`}
         />
-        {errors.username && (
-          <p className="text-red-400 text-xs h-4">{errors.username.message}</p>
-        )}
+
+        <p className="text-red-500 text-xs mt-1 min-h-[16px]">
+          {errors.username?.message}
+        </p>
       </div>
-      <div className="flex flex-col gap-2">
-        <label className="text-[#9929EA]">Email</label>
+
+      {/* Email */}
+      <div>
+        <label className="block text-gray-300 mb-1 font-medium">Email</label>
+
         <input
           type="email"
           {...register("email")}
-          placeholder="enter your email"
-          className="text-white p-2 border rounded-xl bg-transparent"
+          placeholder="Enter your email"
+          className={`${inputBase} ${inputFocus} ${
+            errors.email ? inputError : "border-[#2a2a35]"
+          }`}
         />
-        {errors.email && (
-          <p className="text-red-400 text-xs h-4">{errors.email.message}</p>
-        )}
+
+        <p className="text-red-500 text-xs mt-1 min-h-[16px]">
+          {errors.email?.message}
+        </p>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <label className="text-[#9929EA]">Password</label>
+      {/* Password */}
+      <div>
+        <label className="block text-gray-300 mb-1 font-medium">Password</label>
+
         <input
           type="password"
           {...register("password")}
-          placeholder="create your password"
-          className="text-white p-2 border rounded-xl bg-transparent"
+          placeholder="Create your password"
+          className={`${inputBase} ${inputFocus} ${
+            errors.password ? inputError : "border-[#2a2a35]"
+          }`}
         />
-        {errors.password && (
-          <p className="text-red-400 text-xs h-4">{errors.password.message}</p>
-        )}
+
+        <p className="text-red-500 text-xs mt-1 min-h-[16px]">
+          {errors.password?.message}
+        </p>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <label className="text-[#9929EA]">Profile Picture</label>
+      {/* Profile Image */}
+      <div>
+        <label className="block text-gray-300 mb-1 font-medium">
+          Profile Picture
+        </label>
+
         <input
           type="file"
           {...register("profileImage")}
           accept="image/*"
-          className="text-white p-2 border rounded-xl hover:bg-[#131313] cursor-pointer"
+          className="
+            w-full text-sm text-gray-300
+            border border-[#2a2a35]
+            rounded-xl bg-[#15151c]
+            file:mr-4 file:px-4 file:py-2
+            file:rounded-lg file:border-0
+            file:bg-[#9929EA]
+            file:text-white
+            file:cursor-pointer
+            hover:file:bg-[#7b14c4]
+            cursor-pointer
+          "
         />
-        {errors.profileImage && (
-          <p className="text-red-400 text-xs h-4">
-            {errors.profileImage.message}
-          </p>
-        )}
+
+        <p className="text-red-500 text-xs mt-1 min-h-[16px]">
+          {errors.profileImage?.message}
+        </p>
       </div>
-      <Link to="/login" className="text-[#9929EA]">
+
+      {/* Login link */}
+      <Link
+        to="/login"
+        className="text-xs text-[#b46cff] hover:underline text-center"
+      >
         Already have an account?
       </Link>
+
+      {/* Submit */}
       <button
         type="submit"
         disabled={loading}
-        className="bg-[#9929EA] md:py-2 rounded-xl font-bold hover:bg-[#7b14c4] cursor-pointer ease-in-out duration-200"
+        className="
+          w-full bg-[#9929EA]
+          hover:bg-[#7b14c4]
+          text-white font-semibold
+          py-3 rounded-xl
+          transition-all duration-200
+          active:scale-[0.98]
+          disabled:opacity-60
+          disabled:cursor-not-allowed
+          flex items-center justify-center
+          cursor-pointer
+        "
       >
-        {loading ? <Spinner /> : "Register"}
+        {loading ? <Spinner /> : "Create Account"}
       </button>
     </form>
   );
 };
-
 export default RegisterUserForm;

@@ -6,6 +6,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getUserPostById } from "../api/post.api";
 import { toast } from "react-toastify";
+import AppLayout from "../components/Layout/AppLayout";
 
 const EditPostPage = () => {
   const [content, setContent] = useState<string | null>(null);
@@ -17,28 +18,33 @@ const EditPostPage = () => {
     }
     const getPostData = async () => {
       const response = await getUserPostById(postId);
-      setContent(response[0].content);
+      console.log({ response });
+      setContent(response.content);
     };
 
     getPostData();
   }, [postId]);
   return (
-    <div className="h-screen overflow-hidden bg-black">
-      {/* Fixed Navbar */}
-      <Navbar />
+    // <div className="h-screen overflow-hidden bg-black">
+    //   {/* Fixed Navbar */}
+    //   <Navbar />
 
-      {/* Main Layout */}
-      <div className="flex h-[calc(100vh-10vh)] overflow-hidden">
-        <Sidebar />
+    //   {/* Main Layout */}
+    //   <div className="flex h-[calc(100vh-10vh)] overflow-hidden">
+    //     <Sidebar />
 
-        {/* Scrollable Center */}
-        <div className="flex-1 overflow-y-auto">
-          <EditPostContainer content={content} />
-        </div>
+    //     {/* Scrollable Center */}
+    //     <div className="flex-1 overflow-y-auto">
+    //       <EditPostContainer content={content} />
+    //     </div>
 
-        <ChatBar />
-      </div>
-    </div>
+    //     <ChatBar />
+    //   </div>
+    // </div>
+
+    <AppLayout>
+      <EditPostContainer content={content} />
+    </AppLayout>
   );
 };
 

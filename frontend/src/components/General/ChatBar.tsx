@@ -82,7 +82,8 @@ const ChatBar = () => {
     //   )}
     // </div>
 
-    <div className="w-[300px] shrink-0 h-full border-l border-white/10 text-white flex flex-col">
+    // <div className="w-[300px] shrink-0 h-full border-l border-white/10 text-white flex flex-col">
+    <div className="hidden xl:flex w-72 shrink-0 h-full border-l border-white/10 text-white flex-col">
       <h2 className="px-4 pb-3 text-lg font-semibold border-b border-white/10 my-4">
         Chats
       </h2>

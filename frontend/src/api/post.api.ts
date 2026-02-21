@@ -16,7 +16,7 @@ export const deletePost = async (postId: string) => {
 };
 
 export const getUserPostById = async (postId: string) => {
-  const response = await api.get(`posts/${postId}`);
+  const response = await api.get(`posts/user/${postId}`);
   return response.data.data;
 };
 

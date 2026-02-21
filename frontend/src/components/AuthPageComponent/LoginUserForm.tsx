@@ -43,14 +43,22 @@ const LoginUserForm = () => {
     }
   };
 
+  const inputBase =
+    "w-full bg-[#15151c] border text-gray-100 px-2 py-2 rounded-xl outline-none transition-all duration-200 placeholder:text-gray-500";
+
+  const inputFocus =
+    "focus:border-[#9929EA] focus:ring-2 focus:ring-[#9929EA]/30";
+
+  const inputError = "border-red-500 focus:ring-red-500/20";
+
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="border flex flex-col gap-3 text-sm"
+      className="flex flex-col gap-3 text-sm"
     >
       <div className="flex flex-col gap-2">
         <label className="text-[#9929EA]">Username or Email</label>
-        <input
+        {/* <input
           type="text"
           {...register("identifier")}
           placeholder="enter your username or email"
@@ -60,11 +68,24 @@ const LoginUserForm = () => {
           <p className="text-red-400 text-xs h-4">
             {errors.identifier.message}
           </p>
-        )}
+        )} */}
+
+        <input
+          type="text"
+          {...register("identifier")}
+          placeholder="Create your username"
+          className={`${inputBase} ${inputFocus} ${
+            errors.identifier ? inputError : "border-[#2a2a35]"
+          }`}
+        />
+
+        <p className="text-red-500 text-xs mt-1 min-h-[16px]">
+          {errors.identifier?.message}
+        </p>
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-[#9929EA]">Password</label>
+        {/* <label className="text-[#9929EA]">Password</label>
         <input
           type="password"
           {...register("password")}
@@ -73,7 +94,20 @@ const LoginUserForm = () => {
         />
         {errors.password && (
           <p className="text-red-400 text-xs h-4">{errors.password.message}</p>
-        )}
+        )} */}
+
+        <input
+          type="text"
+          {...register("password")}
+          placeholder="Enter your username"
+          className={`${inputBase} ${inputFocus} ${
+            errors.password ? inputError : "border-[#2a2a35]"
+          }`}
+        />
+
+        <p className="text-red-500 text-xs mt-1 min-h-[16px]">
+          {errors.password?.message}
+        </p>
       </div>
       <Link to="/register" className="text-[#9929EA]">
         Don't have an account?
@@ -81,7 +115,18 @@ const LoginUserForm = () => {
       <button
         type="submit"
         disabled={loading}
-        className="bg-[#9929EA] py-2 rounded-xl font-bold hover:bg-[#7b14c4] cursor-pointer ease-in-out duration-200"
+        className="
+          w-full bg-[#9929EA]
+          hover:bg-[#7b14c4]
+          text-white font-semibold
+          py-3 rounded-xl
+          transition-all duration-200
+          active:scale-[0.98]
+          disabled:opacity-60
+          disabled:cursor-not-allowed
+          flex items-center justify-center
+          cursor-pointer
+        "
       >
         {loading ? <Spinner /> : "Login"}
       </button>

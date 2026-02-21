@@ -29,7 +29,7 @@ const PostContainer = ({ post }: Props) => {
 
   const [loadingLike, setLoadingLike] = useState(false);
 
-  // ✅ Sync state when post changes
+  // Sync state when post changes
   useEffect(() => {
     setLikes(post.likes?.map((l) => l._id) ?? []);
     setLikeCount(post.likeCount ?? 0);
@@ -41,7 +41,7 @@ const PostContainer = ({ post }: Props) => {
     [likes, user],
   );
 
-  // ---------------- LIKE ----------------
+  // Like
   const toggleLike = async () => {
     if (!user) return toast.error("Login first");
 
@@ -64,7 +64,7 @@ const PostContainer = ({ post }: Props) => {
     }
   };
 
-  // ---------------- COMMENTS ----------------
+  // Comments
   const fetchComments = async () => {
     try {
       setLoadingComments(true);

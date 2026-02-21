@@ -49,16 +49,15 @@ const Navbar = () => {
   }, []);
 
   return (
-    <nav className="min-h-[10vh] flex justify-between items-center px-4 md:px-20 border-b border-[#230737]">
-      {/* Logo */}
+    <nav className="h-[60px] flex justify-between items-center px-4 md:px-20 border-b border-[#230737]">
       <Link to="/" className="text-[#9929EA] font-bold text-xl md:text-3xl">
         ConnectHub
       </Link>
 
-      {/* 🔍 Search */}
+      {/* Search */}
       <div
         ref={searchRef}
-        className="relative w-[40%] max-w-md hidden md:block"
+        className="relative w-[50%] max-w-md hidden sm:block"
       >
         <div className="flex items-center bg-[#160023] border border-[#230737] rounded-xl px-3">
           <Search size={18} className="text-gray-400" />
@@ -70,15 +69,10 @@ const Navbar = () => {
           />
         </div>
 
-        {/* Dropdown */}
         {open && (
           <div className="absolute mt-2 w-full bg-[#160023] border border-[#230737] rounded-xl max-h-80 overflow-y-auto z-50">
             {loading && (
               <p className="text-center py-3 text-gray-400">Searching...</p>
-            )}
-
-            {!loading && results.length === 0 && (
-              <p className="text-center py-3 text-gray-400">No users found</p>
             )}
 
             {!loading &&
@@ -100,13 +94,16 @@ const Navbar = () => {
                   ) : (
                     <User2 className="text-white" />
                   )}
-                  <div>
-                    <p className="text-white font-medium">{p.owner.username}</p>
+
+                  <div className="min-w-0">
+                    <p className="text-white font-medium truncate">
+                      {p.owner.username}
+                    </p>
                     {p.content && (
                       <p
-                        className="text-gray-400 text-sm truncate w-56"
+                        className="text-gray-400 text-sm truncate"
                         dangerouslySetInnerHTML={{ __html: p.content }}
-                      ></p>
+                      />
                     )}
                   </div>
                 </Link>
@@ -117,6 +114,8 @@ const Navbar = () => {
 
       {/* Profile */}
       <div className="flex items-center gap-2">
+        <Search className="text-white sm:hidden" size={22} />
+
         {user?.profileImage ? (
           <Link to={`/profile/${user.username}`}>
             <img
@@ -127,9 +126,6 @@ const Navbar = () => {
         ) : (
           <User2 className="text-white" />
         )}
-        <Link to={`/profile/${user?.username}`} className="text-white">
-          {user?.username}
-        </Link>
       </div>
     </nav>
   );

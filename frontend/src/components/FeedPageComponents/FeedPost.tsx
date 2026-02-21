@@ -124,7 +124,8 @@ const FeedPost = ({ post }: FeedPostProps) => {
   }, [post.content]);
 
   return (
-    <section className="min-w-[60vw] md:px-32 md:py-8">
+    // <section className="min-w-[60vw] md:px-32 md:py-8">
+    <section className="w-full px-3 sm:px-6 md:px-10 py-4">
       <div className="flex flex-col gap-2">
         {/* Header */}
         <div className="flex items-center gap-2">
@@ -153,12 +154,22 @@ const FeedPost = ({ post }: FeedPostProps) => {
         {/* Image */}
         {post.image && (
           <Link to={`/${post._id}`}>
-            <img src={post.image.url} alt="post" className="rounded-xl" />
+            {/* <img src={post.image.url} alt="post" className="rounded-xl" /> */}
+            <img
+              src={post.image.url}
+              alt="post"
+              className="rounded-xl w-full h-auto object-cover"
+            />
           </Link>
         )}
 
         {/* Video — HLS player for Cloudinary .m3u8 streams */}
-        {post.video?.url && <HlsVideoPlayer src={post.video?.url} />}
+        {/* {post.video?.url && <HlsVideoPlayer src={post.video?.url} />} */}
+        {post.video?.url && (
+          <div className="w-full aspect-video">
+            <HlsVideoPlayer src={post.video.url} />
+          </div>
+        )}
 
         {/* Post content with read more */}
         <Link to={`/${post._id}`} className="relative">
@@ -254,7 +265,8 @@ const FeedPost = ({ post }: FeedPostProps) => {
             )}
 
             {/* Add comment */}
-            <div className="flex gap-2 pt-2">
+            {/* <div className="flex gap-2 pt-2"> */}
+            <div className="flex gap-2 pt-2 flex-wrap sm:flex-nowrap">
               <input
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
