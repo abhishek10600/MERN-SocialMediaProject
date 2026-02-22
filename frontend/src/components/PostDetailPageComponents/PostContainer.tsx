@@ -97,21 +97,23 @@ const PostContainer = ({ post }: Props) => {
   };
 
   return (
-    <PostView
-      post={post}
-      likes={likes}
-      likeCount={likeCount}
-      commentsCount={commentsCount}
-      comments={comments}
-      showComments={showComments}
-      loadingComments={loadingComments}
-      isLikedByMe={isLikedByMe}
-      loadingLike={loadingLike}
-      onToggleLike={toggleLike}
-      onToggleComments={toggleComments}
-      onAddComment={addComment}
-      onDeleteComment={removeComment}
-    />
+    <div className="w-full max-w-4xl mx-auto flex flex-col overflow-x-hidden">
+      <PostView
+        post={post}
+        likes={likes}
+        likeCount={likeCount}
+        commentsCount={commentsCount}
+        comments={comments}
+        showComments={showComments}
+        loadingComments={loadingComments}
+        isLikedByMe={isLikedByMe}
+        loadingLike={loadingLike}
+        onToggleLike={toggleLike}
+        onToggleComments={toggleComments}
+        onAddComment={addComment}
+        onDeleteComment={removeComment}
+      />
+    </div>
   );
 };
 

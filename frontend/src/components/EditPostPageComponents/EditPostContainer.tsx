@@ -49,7 +49,8 @@ const EditPostContainer = ({ content }: props) => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto mt-6 mb-8 p-4 bg-neutral-900 rounded-xl text-white">
+    // <div className="max-w-2xl mx-auto mt-6 mb-8 p-4 bg-neutral-900 rounded-xl text-white">
+    <div className="mt-6 p-4 bg-neutral-900 rounded-xl text-white mx-4 md:mx-0">
       <h2 className="text-lg font-semibold mb-3">Edit Your Post</h2>
 
       <EditPostEditor value={editorContent} onChange={setEditorContent} />

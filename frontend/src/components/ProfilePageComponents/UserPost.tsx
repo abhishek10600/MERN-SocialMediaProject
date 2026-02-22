@@ -140,7 +140,7 @@ const UserPost = ({ post, onDeletePost }: props) => {
   }, [post.content]);
 
   return (
-    <section className="min-w-[60vw] md:px-32 md:py-8">
+    <section className="px-4 md:py-8">
       <div className="flex flex-col gap-2">
         {/* Header */}
         <div className="flex items-center justify-between">

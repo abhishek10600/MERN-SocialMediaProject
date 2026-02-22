@@ -1,36 +1,3 @@
-// import Navbar from "../General/Navbar";
-// import Sidebar from "../General/Sidebar";
-// import ChatBar from "../General/ChatBar";
-// import MobileNav from "../General/MobileNav";
-
-// const AppLayout = ({ children }: { children: React.ReactNode }) => {
-//   return (
-//     <div className="h-screen flex bg-black text-white overflow-hidden">
-//       {/* Desktop Sidebar */}
-//       <Sidebar />
-
-//       {/* Main Area */}
-//       <div className="flex flex-col flex-1 min-w-0">
-//         <Navbar />
-
-//         <main className="flex-1 overflow-y-auto">
-//           <div className="w-full max-w-2xl mx-auto pb-24 lg:pb-6">
-//             {children}
-//           </div>
-//         </main>
-//       </div>
-
-//       {/* Desktop Chat */}
-//       <ChatBar />
-
-//       {/* Mobile Bottom Navigation */}
-//       <MobileNav />
-//     </div>
-//   );
-// };
-
-// export default AppLayout;
-
 import Navbar from "../General/Navbar";
 import Sidebar from "../General/Sidebar";
 import ChatBar from "../General/ChatBar";

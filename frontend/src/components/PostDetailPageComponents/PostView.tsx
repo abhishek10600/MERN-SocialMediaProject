@@ -50,8 +50,8 @@ const PostView = ({
   }, [post.content]);
 
   return (
-    <div className="max-w-225 mx-auto w-full flex flex-col text-white">
-      <section className="min-w-[60vw] md:px-32 md:py-8">
+    <div className="mx-auto w-full flex flex-col text-white">
+      <section className="px-4 md:py-8">
         <div className="flex flex-col gap-2">
           {/* HEADER */}
           <div className="flex items-center gap-2">

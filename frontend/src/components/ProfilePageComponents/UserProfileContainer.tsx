@@ -91,7 +91,8 @@ const UserProfileContainer = () => {
   }
 
   return (
-    <div className="max-w-225 mx-auto w-full flex flex-col">
+    // <div className="max-w-225 mx-auto w-full flex flex-col">
+    <div className="w-full max-w-4xl mx-auto flex flex-col overflow-x-hidden">
       <UserInfo user={userProfileInfo} refetchProfile={refetchProfile} />
       {loggedInUser?.username === username && (
         <div className="flex justify-end px-8">

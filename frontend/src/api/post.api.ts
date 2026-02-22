@@ -34,6 +34,6 @@ export const getPostById = async (postId: string) => {
 };
 
 export const searchPosts = async (query: string) => {
-  const response = await api.get(`posts/search?query=${query}`);
+  const response = await api.get(`posts/search/post?query=${query}`);
   return response.data.data;
 };
