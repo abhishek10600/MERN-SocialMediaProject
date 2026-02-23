@@ -95,11 +95,11 @@ const LoginUserForm = () => {
         {errors.password && (
           <p className="text-red-400 text-xs h-4">{errors.password.message}</p>
         )} */}
-
+        <label className="text-[#9929EA]">Password</label>
         <input
-          type="text"
+          type="password"
           {...register("password")}
-          placeholder="Enter your username"
+          placeholder="Enter your password"
           className={`${inputBase} ${inputFocus} ${
             errors.password ? inputError : "border-[#2a2a35]"
           }`}

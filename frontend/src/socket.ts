@@ -7,7 +7,7 @@ export const connectSocket = (userId: string) => {
     return socket;
   }
 
-  socket = io("http://localhost:4000", {
+  socket = io(import.meta.env.VITE_SOCKET, {
     withCredentials: true,
     query: {
       userId,
