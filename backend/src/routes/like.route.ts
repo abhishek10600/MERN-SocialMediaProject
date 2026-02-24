@@ -1,10 +1,10 @@
 import express from "express";
-import { verifyJWT } from "../middlewares/auth.middleware";
+import { verifyJWT } from "../middlewares/auth.middleware.js";
 import {
   togglePostLike,
   getUsersWhoLikedPost,
-} from "../controllers/like.controller";
-import { rateLimiter } from "../middlewares/rateLimitter.middleware";
+} from "../controllers/like.controller.js";
+import { rateLimiter } from "../middlewares/rateLimitter.middleware.js";
 
 const router = express.Router();
 

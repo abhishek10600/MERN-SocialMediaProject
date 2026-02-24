@@ -1,17 +1,17 @@
 import { Request, Response } from "express";
-import { ApiError } from "../utils/ApiError";
+import { ApiError } from "../utils/ApiError.js";
 import {
   uploadToCloudinary,
   uploadVideoToCloudinary,
   removeFromCloudinary,
-} from "../utils/cloudinary";
-import { User } from "../models/user.model";
-import { Post } from "../models/post.model";
-import { ApiResponse } from "../utils/ApiResponse";
+} from "../utils/cloudinary.js";
+import { User } from "../models/user.model.js";
+import { Post } from "../models/post.model.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 import sanitizeHtml from "sanitize-html";
 import mongoose from "mongoose";
-import { io } from "../index";
-import { redisClient } from "../config/redis";
+import { io } from "../index.js";
+import { redisClient } from "../config/redis.js";
 
 export const createPost = async (req: Request, res: Response) => {
   try {

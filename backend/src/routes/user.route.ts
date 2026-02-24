@@ -1,5 +1,5 @@
 import express from "express";
-import { upload } from "../middlewares/multer.middleware";
+import { upload } from "../middlewares/multer.middleware.js";
 import {
   registerUser,
   loginUser,
@@ -15,9 +15,9 @@ import {
   unfollowUser,
   getUserFollowers,
   searchUser,
-} from "../controllers/user.controller";
-import { verifyJWT } from "../middlewares/auth.middleware";
-import { rateLimiter } from "../middlewares/rateLimitter.middleware";
+} from "../controllers/user.controller.js";
+import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { rateLimiter } from "../middlewares/rateLimitter.middleware.js";
 
 const router = express.Router();
 

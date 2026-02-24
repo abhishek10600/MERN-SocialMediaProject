@@ -1,13 +1,13 @@
 import express from "express";
-import { verifyJWT } from "../middlewares/auth.middleware";
+import { verifyJWT } from "../middlewares/auth.middleware.js";
 import {
   getOrCreateConversation,
   sendMessage,
   getMessages,
   markSeen,
   getUserConversations,
-} from "../controllers/chat.controller";
-import { upload } from "../middlewares/multer.middleware";
+} from "../controllers/chat.controller.js";
+import { upload } from "../middlewares/multer.middleware.js";
 
 const router = express.Router();
 

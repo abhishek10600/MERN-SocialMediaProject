@@ -1,12 +1,15 @@
 import { Request, Response } from "express";
-import { ApiError } from "../utils/ApiError";
-import { uploadToCloudinary, removeFromCloudinary } from "../utils/cloudinary";
-import { ApiResponse } from "../utils/ApiResponse";
-import { User } from "../models/user.model";
+import { ApiError } from "../utils/ApiError.js";
+import {
+  uploadToCloudinary,
+  removeFromCloudinary,
+} from "../utils/cloudinary.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { User } from "../models/user.model.js";
 import jwt from "jsonwebtoken";
-import { AccessTokenPayload } from "../types";
+import { AccessTokenPayload } from "../types/index.js";
 import fs from "fs";
-import { upload } from "../middlewares/multer.middleware";
+import { upload } from "../middlewares/multer.middleware.js";
 import mongoose from "mongoose";
 
 export const registerUser = async (req: Request, res: Response) => {

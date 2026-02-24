@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { redisClient } from "../config/redis";
+import { redisClient } from "../config/redis.js";
 
 interface RateLimiterOptions {
   windowMs: number;

@@ -1,6 +1,6 @@
 import express from "express";
-import { verifyJWT } from "../middlewares/auth.middleware";
-import { upload } from "../middlewares/multer.middleware";
+import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { upload } from "../middlewares/multer.middleware.js";
 import {
   createPost,
   getAllPostsForHome,
@@ -10,7 +10,7 @@ import {
   deletePost,
   getPostById,
   searchPosts,
-} from "../controllers/post.controller";
+} from "../controllers/post.controller.js";
 
 const router = express.Router();
 

@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { rateLimiter } from "./middlewares/rateLimitter.middleware";
+import { rateLimiter } from "./middlewares/rateLimitter.middleware.js";
 
 const app = express();
 
@@ -26,12 +26,12 @@ app.use(
 );
 
 // routes
-import testRoute from "./routes/testRoute";
-import userRouter from "./routes/user.route";
-import postRouter from "./routes/post.route";
-import commentRouter from "./routes/comment.route";
-import likeRouter from "./routes/like.route";
-import chatRouter from "./routes/chat.route";
+import testRoute from "./routes/testRoute.js";
+import userRouter from "./routes/user.route.js";
+import postRouter from "./routes/post.route.js";
+import commentRouter from "./routes/comment.route.js";
+import likeRouter from "./routes/like.route.js";
+import chatRouter from "./routes/chat.route.js";
 
 app.use("/api/v1/test", testRoute);
 app.use("/api/v1/users", userRouter);

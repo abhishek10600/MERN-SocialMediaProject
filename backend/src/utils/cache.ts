@@ -1,4 +1,4 @@
-import { redisClient } from "../config/redis";
+import { redisClient } from "../config/redis.js";
 
 export const invalidatePostCaches = async (username?: string) => {
   try {

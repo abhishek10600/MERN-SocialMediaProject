@@ -30,21 +30,23 @@ services:
       - redis
 
     # in production don't use volumes for backend
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
+    # volumes:
+    #   - ./backend:/app
+    #   - /app/node_modules
 
   frontend:
     build: ./frontend
     container_name: frontend
     restart: always
+    env_file:
+      - ./frontend/.env
     ports:
       - "5173:5173"
 
     # in production don't use volumes for backend
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
+    # volumes:
+    #   - ./frontend:/app
+    #   - /app/node_modules
 
     depends_on:
       - backend

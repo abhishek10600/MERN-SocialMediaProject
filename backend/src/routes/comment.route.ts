@@ -1,11 +1,11 @@
 import express from "express";
-import { verifyJWT } from "../middlewares/auth.middleware";
+import { verifyJWT } from "../middlewares/auth.middleware.js";
 import {
   createComment,
   getCommentsByPostId,
   deleteComment,
-} from "../controllers/comment.controller";
-import { rateLimiter } from "../middlewares/rateLimitter.middleware";
+} from "../controllers/comment.controller.js";
+import { rateLimiter } from "../middlewares/rateLimitter.middleware.js";
 
 const router = express.Router();
 

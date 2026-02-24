@@ -1,5 +1,5 @@
 import mongoose, { Model } from "mongoose";
-import { IPostDocument } from "../types";
+import { IPostDocument } from "../types/index.js";
 
 const mediaSchema = new mongoose.Schema(
   {

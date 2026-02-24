@@ -19,7 +19,7 @@ export const registerUser = async (data: RegisterUserFormData) => {
 
   const response = await api.post("/users/register", formData, {
     headers: {
-      "Content-Type": "multipart/formdata",
+      "Content-Type": "multipart/form-data",
     },
   });
 

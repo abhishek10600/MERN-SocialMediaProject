@@ -13,7 +13,7 @@ RUN npm run build
 EXPOSE 4000
 
 # for development
-CMD ["npm", "run", "dev"]
+# CMD ["npm", "run", "dev"]
 
 # for production
-# CMD ["node", "dist/index.js"]
+CMD ["node", "dist/index.js"]

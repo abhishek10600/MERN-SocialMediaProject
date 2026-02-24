@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
-import { ApiError } from "../utils/ApiError";
-import { Post } from "../models/post.model";
-import { ApiResponse } from "../utils/ApiResponse";
+import { ApiError } from "../utils/ApiError.js";
+import { Post } from "../models/post.model.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 import mongoose from "mongoose";
-import { io } from "../index";
-import { invalidatePostCaches } from "../utils/cache";
-import { redisClient } from "../config/redis";
+import { io } from "../index.js";
+import { invalidatePostCaches } from "../utils/cache.js";
+import { redisClient } from "../config/redis.js";
 
 export const togglePostLike = async (req: Request, res: Response) => {
   try {

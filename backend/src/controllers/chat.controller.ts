@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
-import { ApiError } from "../utils/ApiError";
-import { Conversation } from "../models/conversation.model";
-import { ApiResponse } from "../utils/ApiResponse";
-import { uploadToCloudinary } from "../utils/cloudinary";
-import { Message } from "../models/message.model";
+import { ApiError } from "../utils/ApiError.js";
+import { Conversation } from "../models/conversation.model.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { uploadToCloudinary } from "../utils/cloudinary.js";
+import { Message } from "../models/message.model.js";
 import mongoose from "mongoose";
-import { io } from "../index";
+import { io } from "../index.js";
 
 export const getOrCreateConversation = async (req: Request, res: Response) => {
   try {

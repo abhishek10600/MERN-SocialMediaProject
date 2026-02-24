@@ -1,4 +1,5 @@
 import { io, Socket } from "socket.io-client";
+import { socketUrl } from "./utils/constants";
 
 let socket: Socket | null = null;
 
@@ -7,7 +8,7 @@ export const connectSocket = (userId: string) => {
     return socket;
   }
 
-  socket = io(import.meta.env.VITE_SOCKET, {
+  socket = io(socketUrl, {
     withCredentials: true,
     query: {
       userId,

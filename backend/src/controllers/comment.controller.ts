@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
-import { ApiError } from "../utils/ApiError";
-import { Post } from "../models/post.model";
-import { Comment } from "../models/comment.model";
-import { ApiResponse } from "../utils/ApiResponse";
-import { io } from "../index";
-import { invalidatePostCaches } from "../utils/cache";
-import { redisClient } from "../config/redis";
+import { ApiError } from "../utils/ApiError.js";
+import { Post } from "../models/post.model.js";
+import { Comment } from "../models/comment.model.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { io } from "../index.js";
+import { invalidatePostCaches } from "../utils/cache.js";
+import { redisClient } from "../config/redis.js";
 import mongoose from "mongoose";
 
 export const createComment = async (req: Request, res: Response) => {

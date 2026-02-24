@@ -1,5 +1,5 @@
 import mongoose, { Model } from "mongoose";
-import { IConversationDocument } from "../types";
+import { IConversationDocument } from "../types/index.js";
 
 const conversationSchema = new mongoose.Schema<
   IConversationDocument,

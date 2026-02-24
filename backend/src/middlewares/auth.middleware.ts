@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
-import { ApiError } from "../utils/ApiError";
+import { ApiError } from "../utils/ApiError.js";
 import jwt from "jsonwebtoken";
-import { User } from "../models/user.model";
-import { AccessTokenPayload } from "../types";
+import { User } from "../models/user.model.js";
+import { AccessTokenPayload } from "../types/index.js";
 
 export const verifyJWT = async (
   req: Request,
@@ -51,4 +51,3 @@ export const verifyJWT = async (
     });
   }
 };
-
