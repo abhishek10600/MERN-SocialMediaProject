@@ -12,6 +12,8 @@ RUN npm install
 
 COPY . .
 
+RUN mkdir -p public/temp
+
 # RUN npm run build
 RUN node --max-old-space-size=512 node_modules/.bin/tsc
 
