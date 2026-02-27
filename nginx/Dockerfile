@@ -9,7 +9,8 @@ RUN npm install
 
 COPY frontend/ .
 
-RUN npm run build
+# RUN npm run build
+RUN node --max-old-space-size=1536 node_modules/.bin/vite build
 
 FROM nginx:alpine
 
