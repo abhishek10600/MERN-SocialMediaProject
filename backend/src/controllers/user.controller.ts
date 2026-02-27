@@ -88,7 +88,7 @@ export const registerUser = async (req: Request, res: Response) => {
 
     const cookiesOptions = {
       httpOnly: true,
-      secure: true,
+      secure: false,
     };
 
     return res
@@ -159,7 +159,7 @@ export const loginUser = async (req: Request, res: Response) => {
 
     const cookiesOptions = {
       httpOnly: true,
-      secure: true,
+      secure: false,
     };
 
     return res
@@ -219,7 +219,7 @@ export const logoutUser = async (req: Request, res: Response) => {
 
     const cookieOptions = {
       httpOnly: true,
-      secure: true,
+      secure: false,
     };
 
     return res
@@ -306,7 +306,7 @@ export const refreshAccessToken = async (req: Request, res: Response) => {
 
     const cookieOptions = {
       httpOnly: true,
-      secure: true,
+      secure: false,
     };
 
     return res
