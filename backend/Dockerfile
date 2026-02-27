@@ -12,7 +12,8 @@ RUN npm install
 
 COPY . .
 
-RUN npm run build
+# RUN npm run build
+RUN node --max-old-space-size=512 node_modules/.bin/tsc
 
 EXPOSE 4000
 
