@@ -5,10 +5,10 @@ WORKDIR /app
 COPY package*.json ./
 
 # for development
-# RUN npm install
+RUN npm install
 
 # for production
-RUN npm ci
+# RUN npm ci
 
 COPY . .
 
