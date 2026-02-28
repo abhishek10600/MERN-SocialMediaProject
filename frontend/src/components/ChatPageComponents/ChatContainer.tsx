@@ -162,7 +162,7 @@ const ChatContainer = () => {
             >
               {!isMe && (
                 <img
-                  src={msg.sender.profileImage || "avatar1.jpg"}
+                  src={msg.sender.profileImage || "/avatar1.jpg"}
                   alt={msg.sender.username}
                   className="w-8 h-8 rounded-full object-cover"
                 />

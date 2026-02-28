@@ -77,7 +77,7 @@ const MobileChatDrawer = ({ open, onClose }: Props) => {
               className="flex gap-3 p-4 border-b border-white/5"
             >
               <img
-                src={otherUser?.profileImage || "/avatar.png"}
+                src={otherUser?.profileImage || "/avatar1.jpg"}
                 className="w-10 h-10 rounded-full"
               />
 
@@ -93,7 +93,7 @@ const MobileChatDrawer = ({ open, onClose }: Props) => {
                 </div>
 
                 <p className="text-xs text-white/60 truncate">
-                  {conv.lastMessage?.text || "Image"}
+                  {conv.lastMessage?.text || "No Message"}
                 </p>
               </div>
             </div>
