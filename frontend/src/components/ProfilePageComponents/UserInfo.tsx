@@ -133,14 +133,16 @@ const UserInfo = ({ user, refetchProfile }: UserInfoProps) => {
             <div className="w-full h-full rounded-full overflow-hidden bg-black">
               {user.profileImage ? (
                 <img
-                  src={user.profileImage || "/defaultavatar.png"}
+                  src={user.profileImage}
                   alt={user.username}
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="z-10">
-                  <User2 />
-                </div>
+                <img
+                  src={"/avatar1.jpg"}
+                  alt={user.username}
+                  className="w-full h-full object-cover"
+                />
               )}
             </div>
           </div>

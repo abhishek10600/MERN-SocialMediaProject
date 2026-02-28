@@ -233,10 +233,7 @@ const FeedPost = ({ post }: FeedPostProps) => {
                   >
                     <div className="flex gap-2">
                       <img
-                        src={
-                          comment.commentedBy.profileImage ||
-                          "/default-avatar.png"
-                        }
+                        src={comment.commentedBy.profileImage || "/avatar1.jpg"}
                         className="w-8 h-8 rounded-full object-cover"
                         alt={comment.commentedBy.username}
                       />

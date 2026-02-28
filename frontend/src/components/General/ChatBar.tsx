@@ -111,7 +111,7 @@ const ChatBar = () => {
               >
                 {/* Avatar */}
                 <img
-                  src={otherUser?.profileImage || "/avatar.png"}
+                  src={otherUser?.profileImage || "/avatar1.jpg"}
                   className="w-9 h-9 rounded-full object-cover"
                   alt=""
                 />

@@ -64,7 +64,13 @@ const PostView = ({
                 />
               </Link>
             ) : (
-              <User2 className="text-white" />
+              <Link to={`/profile/${post.owner.username}`}>
+                <img
+                  className="w-8 h-8 rounded-full object-cover"
+                  src="/avatar1.jpg"
+                  alt="profile"
+                />
+              </Link>
             )}
 
             <Link to={`/profile/${post.owner.username}`}>
@@ -144,10 +150,7 @@ const PostView = ({
                   >
                     <div className="flex gap-2">
                       <img
-                        src={
-                          comment.commentedBy.profileImage ||
-                          "/default-avatar.png"
-                        }
+                        src={comment.commentedBy.profileImage || "/avatar1.png"}
                         className="w-8 h-8 rounded-full object-cover"
                         alt={comment.commentedBy.username}
                       />
